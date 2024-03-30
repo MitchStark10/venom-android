@@ -1,5 +1,6 @@
 package com.example.venom
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,11 +17,12 @@ import androidx.compose.ui.Modifier
 import com.example.venom.login.LoginForm
 import com.example.venom.ui.theme.VenomTheme
 
+
 class MainActivity : ComponentActivity() {
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPrefs =
+            applicationContext.getSharedPreferences("VENOM_SHARED_PREFS", MODE_PRIVATE)
 
         setContent {
             VenomTheme {
@@ -29,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppContainer()
+                    AppContainer(sharedPrefs)
                 }
             }
         }
@@ -37,23 +39,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppContainer() {
+fun AppContainer(sharedPreferences: SharedPreferences) {
+    val initialToken = sharedPreferences.getString("token", "")
     var isLoggedIn by remember {
-        mutableStateOf(false)
+        mutableStateOf(!initialToken.isNullOrEmpty())
     }
-
     var token by remember {
-        mutableStateOf("")
+        mutableStateOf(initialToken)
     }
 
     fun handleSuccessfulLogin(newToken: String) {
         isLoggedIn = true
         token = newToken
+        sharedPreferences.edit().putString("token", newToken).apply()
     }
 
     if (!isLoggedIn) {
         LoginForm(::handleSuccessfulLogin)
     } else {
         Text("You've made it past the login screen!")
+        Text("Access token: $token")
     }
 }

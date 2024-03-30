@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,7 +72,7 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Venom", fontSize = 30.sp)
+        Text("Venom", fontSize = 30.sp, fontWeight = FontWeight.Bold)
         OutlinedTextField(
             value = userEmail,
             onValueChange = { userEmail = it },
