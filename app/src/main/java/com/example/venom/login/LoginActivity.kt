@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,23 +30,21 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
-fun LoginForm() {
+fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
     var isProcessingApiCall by remember { mutableStateOf(false) }
+    var loginFailureMessage by remember { mutableStateOf("") }
 
     fun handleButtonClick() {
-        println("Handling button click")
         val loginService: LoginService = Retrofit.retrofit.create(LoginService::class.java)
-        println("Initialized login service")
         isProcessingApiCall = true
-        println("Set is processing API call to true")
         val userToLoginWith = User(userEmail, userPassword)
-        println("Created user for API call")
+        loginFailureMessage = ""
         loginService.login(userToLoginWith).enqueue(object : Callback<LoginResponse> {
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                println("Login API call failed: $t")
                 isProcessingApiCall = false
+                loginFailureMessage = "Unexpected error occurred while logging in."
             }
 
             override fun onResponse(
@@ -53,10 +53,11 @@ fun LoginForm() {
             ) {
                 val responseBody = response.body()
                 if (response.isSuccessful && responseBody?.token != null && responseBody.token.isNotEmpty()) {
-                    println("Received token!: " + response.body()?.toString())
+                    handleSuccessfulLogin(responseBody.token)
                 } else {
                     println("Did not receive token: " + response.code())
                     println("Further details: " + response.body())
+                    loginFailureMessage = "Email or password is incorrect"
                 }
 
                 isProcessingApiCall = false
@@ -80,6 +81,7 @@ fun LoginForm() {
             onValueChange = { userPassword = it },
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation()
         )
         Button(
             onClick = { handleButtonClick() },
@@ -91,6 +93,10 @@ fun LoginForm() {
             }
             Text(textForButton)
         }
+
+        if (loginFailureMessage.isNotEmpty()) {
+            Text(loginFailureMessage, color = Color.Red)
+        }
     }
 }
 
@@ -98,6 +104,6 @@ fun LoginForm() {
 @Composable
 fun LoginFormPreview() {
     VenomTheme {
-        LoginForm()
+        LoginForm { }
     }
 }

@@ -8,16 +8,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.venom.login.LoginForm
 import com.example.venom.ui.theme.VenomTheme
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        var isLoggedIn = false; // TODO: Read creds from storage
 
         setContent {
             VenomTheme {
@@ -26,11 +29,31 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (!isLoggedIn) {
-                        LoginForm()
-                    }
+                    AppContainer()
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AppContainer() {
+    var isLoggedIn by remember {
+        mutableStateOf(false)
+    }
+
+    var token by remember {
+        mutableStateOf("")
+    }
+
+    fun handleSuccessfulLogin(newToken: String) {
+        isLoggedIn = true
+        token = newToken
+    }
+
+    if (!isLoggedIn) {
+        LoginForm(::handleSuccessfulLogin)
+    } else {
+        Text("You've made it past the login screen!")
     }
 }
