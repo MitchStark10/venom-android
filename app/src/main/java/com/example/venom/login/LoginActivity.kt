@@ -25,6 +25,13 @@ fun LoginForm() {
     var userPassword by remember { mutableStateOf("") }
     var isProcessingApiCall by remember { mutableStateOf(false) }
 
+    fun handleButtonClick() {
+        isProcessingApiCall = true
+
+        // TODO: Make the login api call
+
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -38,7 +45,7 @@ fun LoginForm() {
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         )
-        Button(onClick = { isProcessingApiCall = true }, enabled = !isProcessingApiCall) {
+        Button(onClick = { handleButtonClick() }, enabled = !isProcessingApiCall) {
             var textForButton = "Log In"
             if (isProcessingApiCall) {
                 textForButton = "Processing..."
