@@ -1,13 +1,13 @@
 package com.example.venom.layout
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -86,40 +86,38 @@ fun NavigationDrawer(
             ModalDrawerSheet {
                 NavigationDrawerItem(
                     label = {
-                        Row {
-                            Icon(Icons.Filled.DateRange, "Today")
-                            Text(text = "Today")
-                        }
+                        NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
                     },
                     selected = false,
                     onClick = { /*TODO*/ }
                 )
                 NavigationDrawerItem(
                     label = {
-                        Row {
-                            Icon(Icons.Filled.ArrowForward, "Upcoming")
-                            Text(text = "Upcoming")
-                        }
+                        NavigationDrawerRow(text = "Upcoming", icon = Icons.Filled.ArrowForward)
                     },
                     selected = false,
                     onClick = { /*TODO*/ }
                 )
                 NavigationDrawerItem(
                     label = {
-                        Row {
-                            Icon(Icons.Filled.Done, "Completed")
-                            Text(text = "Completed")
-                        }
+                        NavigationDrawerRow(text = "Completed", icon = Icons.Filled.Done)
                     },
                     selected = false,
                     onClick = { /*TODO*/ }
                 )
                 Divider()
-                // TODO: Dynamic list retrieval
-                NavigationDrawerItem(
-                    label = { Text(text = "Lists coming soon: ${lists.size}") },
-                    selected = false,
-                    onClick = { /*TODO*/ })
+                for (list in lists) {
+                    NavigationDrawerItem(
+                        label = {
+                            NavigationDrawerRow(
+                                text = list.listName,
+                                icon = Icons.Outlined.CheckCircle
+                            )
+                        },
+                        selected = false,
+                        onClick = { /*TODO*/ })
+                }
+
 
                 if (isLoading) {
                     CircularProgressIndicator()
