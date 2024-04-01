@@ -1,7 +1,7 @@
 package com.example.venom.services
 
-import com.example.venom.dataClasses.LoginResponse
-import com.example.venom.dataClasses.User
+import com.example.venom.classes.LoginResponse
+import com.example.venom.classes.User
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST

@@ -1,4 +1,4 @@
-package com.example.venom.dataClasses
+package com.example.venom.classes
 
 data class LoginResponse(
     val token: String

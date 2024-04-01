@@ -21,8 +21,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.venom.dataClasses.LoginResponse
-import com.example.venom.dataClasses.User
+import com.example.venom.classes.LoginResponse
+import com.example.venom.classes.User
 import com.example.venom.login.ui.theme.VenomTheme
 import com.example.venom.services.LoginService
 import com.example.venom.services.RetrofitBuilder

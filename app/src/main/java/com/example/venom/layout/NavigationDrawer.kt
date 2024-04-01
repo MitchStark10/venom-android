@@ -35,7 +35,9 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.venom.dataClasses.List
+import com.example.venom.classes.List
+import com.example.venom.classes.SelectedView
+import com.example.venom.classes.Views
 import com.example.venom.services.ListService
 import com.example.venom.services.RetrofitBuilder
 import kotlinx.coroutines.launch
@@ -89,21 +91,21 @@ fun NavigationDrawer(
                         NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
                     },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = { SelectedView.selectedView = Views.TODAY }
                 )
                 NavigationDrawerItem(
                     label = {
                         NavigationDrawerRow(text = "Upcoming", icon = Icons.Filled.ArrowForward)
                     },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = { SelectedView.selectedView = Views.UPCOMING }
                 )
                 NavigationDrawerItem(
                     label = {
                         NavigationDrawerRow(text = "Completed", icon = Icons.Filled.Done)
                     },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = { SelectedView.selectedView = Views.COMPLETED }
                 )
                 Divider()
                 for (list in lists) {
@@ -115,7 +117,10 @@ fun NavigationDrawer(
                             )
                         },
                         selected = false,
-                        onClick = { /*TODO*/ })
+                        onClick = {
+                            SelectedView.selectedView = Views.LIST
+                            SelectedView.selectedId = list.id
+                        })
                 }
 
 
