@@ -25,7 +25,7 @@ import com.example.venom.dataClasses.LoginResponse
 import com.example.venom.dataClasses.User
 import com.example.venom.login.ui.theme.VenomTheme
 import com.example.venom.services.LoginService
-import com.example.venom.services.Retrofit
+import com.example.venom.services.RetrofitBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,7 +38,8 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
     var loginFailureMessage by remember { mutableStateOf("") }
 
     fun handleButtonClick() {
-        val loginService: LoginService = Retrofit.retrofit.create(LoginService::class.java)
+        val loginService: LoginService =
+            RetrofitBuilder.getRetrofit().create(LoginService::class.java)
         isProcessingApiCall = true
         val userToLoginWith = User(userEmail, userPassword)
         loginFailureMessage = ""

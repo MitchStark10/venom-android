@@ -4,17 +4,21 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.venom.layout.NavigationDrawer
 import com.example.venom.login.LoginForm
+import com.example.venom.services.RetrofitBuilder
 import com.example.venom.ui.theme.VenomTheme
 
 
@@ -48,6 +52,11 @@ fun AppContainer(sharedPreferences: SharedPreferences) {
         mutableStateOf(initialToken)
     }
 
+    LaunchedEffect(token) {
+        println("Creating retrofit with token")
+        RetrofitBuilder.createRetrofit(token)
+    }
+
     fun handleSuccessfulLogin(newToken: String) {
         isLoggedIn = true
         token = newToken
@@ -57,7 +66,10 @@ fun AppContainer(sharedPreferences: SharedPreferences) {
     if (!isLoggedIn) {
         LoginForm(::handleSuccessfulLogin)
     } else {
-        Text("You've made it past the login screen!")
-        Text("Access token: $token")
+        Column {
+            NavigationDrawer {
+                Text("You've made it past the login screen!")
+            }
+        }
     }
 }
