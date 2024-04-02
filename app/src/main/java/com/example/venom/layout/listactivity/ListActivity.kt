@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -32,10 +36,11 @@ fun ListActivity(list: List) {
         Divider()
         Spacer(modifier = Modifier.size(20.dp))
         for (task in list.tasks) {
-            fun handleTaskCompletion(isCompleted: Boolean) {
-                task.isCompleted = isCompleted
+            var isCompleted by remember { mutableStateOf(task.isCompleted) }
+            fun handleTaskCompletion(updatedIsCompleted: Boolean) {
+                isCompleted = updatedIsCompleted
+                task.isCompleted = updatedIsCompleted
                 val taskApi = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-                println("Before sending update request")
                 taskApi.updateTask(task.id, task).enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {
                         Toast.makeText(
@@ -47,14 +52,13 @@ fun ListActivity(list: List) {
                     }
 
                     override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                        println("After sending update request, triggering list refresh")
                         RefreshCounter.refreshListCount++
                     }
                 })
             }
 
             LabelledCheckBox(
-                checked = task.isCompleted,
+                checked = isCompleted,
                 onCheckedChange = { handleTaskCompletion(it) },
                 label = task.taskName
             )
