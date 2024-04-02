@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.venom.NewTaskModal
+import com.example.venom.classes.Modal
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
 import com.example.venom.layout.listactivity.ListActivity
@@ -18,6 +20,11 @@ fun LayoutRouter() {
             Views.UPCOMING -> Text("Upcoming")
             Views.COMPLETED -> Text("Completed")
             Views.LIST -> ListActivity(list = SelectedView.selectedList!!)
+        }
+
+        when (SelectedView.openModal) {
+            Modal.NEW_TASK_MODAL -> NewTaskModal()
+            Modal.NONE -> Unit
         }
     }
 }
