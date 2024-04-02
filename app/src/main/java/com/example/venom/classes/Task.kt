@@ -6,6 +6,6 @@ data class Task(
     val dueDate: String?,
     val listViewOrder: Int?,
     val timeViewOrder: Int?,
-    val isCompleted: Boolean,
+    var isCompleted: Boolean,
     val list: List
 )

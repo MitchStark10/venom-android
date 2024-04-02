@@ -31,11 +31,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.venom.classes.List
+import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
 import com.example.venom.services.ListService
@@ -56,8 +56,17 @@ fun NavigationDrawer(
         mutableStateListOf<List>()
     }
     var isLoading by remember { mutableStateOf(true) }
+    println("Renderign with lists length ${lists.size}")
 
-    LaunchedEffect(Unit) {
+    fun closeDrawer() {
+        scope.launch() {
+            drawerState.apply {
+                if (isClosed) open() else close()
+            }
+        }
+    }
+
+    LaunchedEffect(RefreshCounter.refreshListCount) {
         println("Initializing list service")
         val listService: ListService =
             RetrofitBuilder.getRetrofit().create(ListService::class.java)
@@ -74,8 +83,17 @@ fun NavigationDrawer(
                 println("Returned response: ${response.code()}")
                 val listsResponseBody = response.body()
                 if (response.isSuccessful && !listsResponseBody.isNullOrEmpty()) {
-                    println("Successfully setting lists")
-                    lists = listsResponseBody.toMutableStateList()
+                    println("Successfully setting lists: " + listsResponseBody.size)
+                    lists.clear()
+                    lists.addAll(listsResponseBody)
+
+                    if (SelectedView.selectedList != null) {
+
+                        val updatedList =
+                            listsResponseBody.find { it.id == SelectedView.selectedList!!.id }
+
+                        SelectedView.selectedList = updatedList
+                    }
                 }
                 isLoading = false
             }
@@ -91,21 +109,30 @@ fun NavigationDrawer(
                         NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
                     },
                     selected = false,
-                    onClick = { SelectedView.selectedView = Views.TODAY }
+                    onClick = {
+                        SelectedView.selectedView = Views.TODAY
+                        closeDrawer()
+                    }
                 )
                 NavigationDrawerItem(
                     label = {
                         NavigationDrawerRow(text = "Upcoming", icon = Icons.Filled.ArrowForward)
                     },
                     selected = false,
-                    onClick = { SelectedView.selectedView = Views.UPCOMING }
+                    onClick = {
+                        SelectedView.selectedView = Views.UPCOMING
+                        closeDrawer()
+                    }
                 )
                 NavigationDrawerItem(
                     label = {
                         NavigationDrawerRow(text = "Completed", icon = Icons.Filled.Done)
                     },
                     selected = false,
-                    onClick = { SelectedView.selectedView = Views.COMPLETED }
+                    onClick = {
+                        SelectedView.selectedView = Views.COMPLETED
+                        closeDrawer()
+                    }
                 )
                 Divider()
                 for (list in lists) {
@@ -119,10 +146,10 @@ fun NavigationDrawer(
                         selected = false,
                         onClick = {
                             SelectedView.selectedView = Views.LIST
-                            SelectedView.selectedId = list.id
+                            SelectedView.selectedList = list
+                            closeDrawer()
                         })
                 }
-
 
                 if (isLoading) {
                     CircularProgressIndicator()
@@ -140,17 +167,12 @@ fun NavigationDrawer(
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
-                            scope.launch() {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
-                                }
-                            }
+                            closeDrawer()
                         }) {
                             Icon(Icons.Filled.Menu, contentDescription = "")
                         }
                     },
-
-                    )
+                )
             }
         ) { contentPadding ->
             Column(Modifier.padding(contentPadding)) {
