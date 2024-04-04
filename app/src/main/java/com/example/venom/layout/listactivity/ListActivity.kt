@@ -1,10 +1,13 @@
 package com.example.venom.layout.listactivity
 
+import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
@@ -32,11 +35,16 @@ import com.example.venom.services.TaskService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Composable
 fun ListActivity(list: List) {
     val toastContext = LocalContext.current
 
+    val groupedTasks = list.tasks.sortedByDescending { it.dueDate }.groupBy { it.dueDate }
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { SelectedView.openModal = Modal.NEW_TASK_MODAL }) {
@@ -44,39 +52,66 @@ fun ListActivity(list: List) {
             }
         }
     ) {
-        Column(modifier = Modifier.padding(it)) {
+        Column(
+            modifier = Modifier
+                .padding(it)
+                .verticalScroll(rememberScrollState())
+        ) {
             Text(list.listName, fontSize = 25.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.size(10.dp))
             Divider()
             Spacer(modifier = Modifier.size(20.dp))
-            for (task in list.tasks) {
-                var isCompleted by remember { mutableStateOf(task.isCompleted) }
-                fun handleTaskCompletion(updatedIsCompleted: Boolean) {
-                    isCompleted = updatedIsCompleted
-                    task.isCompleted = updatedIsCompleted
-                    val taskApi = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-                    taskApi.updateTask(task.id, task).enqueue(object : Callback<Unit> {
-                        override fun onFailure(call: Call<Unit>, t: Throwable) {
-                            Toast.makeText(
-                                toastContext,
-                                "Unable to mark task as completed",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
+            for (group in groupedTasks.entries) {
+                var groupText = ""
 
-                        override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                            RefreshCounter.refreshListCount++
-                        }
-                    })
+                if (group.key.isNullOrEmpty()) {
+                    groupText = "No Due Date"
+                } else {
+                    groupText = DateUtils.getRelativeTimeSpanString(
+                        LocalDateTime.parse(group.key, DateTimeFormatter.ISO_DATE_TIME)
+                            .toInstant(ZoneOffset.UTC).toEpochMilli(),
+                        Date().time,
+                        DateUtils.DAY_IN_MILLIS,
+                    ).toString()
                 }
 
-                LabelledCheckBox(
-                    checked = isCompleted,
-                    onCheckedChange = { handleTaskCompletion(it) },
-                    label = task.taskName
-                )
+                Text(text = groupText, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Divider()
                 Spacer(modifier = Modifier.size(10.dp))
+
+                for (task in group.value) {
+                    var isCompleted by remember { mutableStateOf(task.isCompleted) }
+                    fun handleTaskCompletion(updatedIsCompleted: Boolean) {
+                        isCompleted = updatedIsCompleted
+                        task.isCompleted = updatedIsCompleted
+                        val taskApi = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+                        taskApi.updateTask(task.id, task).enqueue(object : Callback<Unit> {
+                            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                                Toast.makeText(
+                                    toastContext,
+                                    "Unable to mark task as completed",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
+
+                            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                                RefreshCounter.refreshListCount++
+                                isCompleted = false
+                            }
+                        })
+                    }
+
+                    LabelledCheckBox(
+                        checked = isCompleted,
+                        onCheckedChange = { handleTaskCompletion(it) },
+                        label = task.taskName
+                    )
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+
+                Spacer(modifier = Modifier.size(20.dp))
+
             }
         }
     }
