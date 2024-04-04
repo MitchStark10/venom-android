@@ -9,3 +9,9 @@ data class Task(
     var isCompleted: Boolean,
     val list: List
 )
+
+data class CreateTaskRequestBody(
+    val taskName: String,
+    val dueDate: String?,
+    val listId: Int
+)
