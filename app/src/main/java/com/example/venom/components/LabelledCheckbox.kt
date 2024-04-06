@@ -33,7 +33,7 @@ fun LabelledCheckBox(
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = null
+            onCheckedChange = { onCheckedChange(it) }
         )
 
         Spacer(Modifier.size(6.dp))
