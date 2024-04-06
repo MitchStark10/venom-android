@@ -1,5 +1,6 @@
 package com.example.venom.services
 
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -52,7 +53,11 @@ class RetrofitBuilder {
 
             this.instance = Builder()
                 .baseUrl("https://venom-backend-wmmm.onrender.com")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(
+                    GsonConverterFactory.create(
+                        GsonBuilder().serializeNulls().create()
+                    )
+                )
                 .client(client)
                 .build()
         }

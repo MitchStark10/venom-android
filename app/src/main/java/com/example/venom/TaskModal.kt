@@ -12,11 +12,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
@@ -54,25 +57,36 @@ fun TaskModal() {
     var taskName by remember {
         mutableStateOf(initialTaskName)
     }
-
     var dateState by remember {
         mutableStateOf(initialTaskDate)
     }
-
     var isProcessing by remember {
         mutableStateOf(false)
     }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        if (SelectedView.selectedTask == null) {
+            focusRequester.requestFocus()
+        }
+    }
+
 
     val toastContext = LocalContext.current
 
     fun handleSubmitTask() {
         isProcessing = true
-        val initialDateStr =
-            dateState.slice(0..1) + "/" + dateState.slice(2..3) + "/" + dateState.slice(4..7) + " 12:00"
-        val date: Date = SimpleDateFormat("MM/dd/yyyy").parse(initialDateStr)
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-        sdf.timeZone = TimeZone.getTimeZone("CET")
-        val formattedDateTime = sdf.format(date)
+
+        var formattedDateTime: String? = null
+
+        if (dateState.length == 8) {
+            val initialDateStr =
+                dateState.slice(0..1) + "/" + dateState.slice(2..3) + "/" + dateState.slice(4..7) + " 12:00"
+            val date: Date = SimpleDateFormat("MM/dd/yyyy").parse(initialDateStr)
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+            sdf.timeZone = TimeZone.getTimeZone("CET")
+            formattedDateTime = sdf.format(date)
+        }
 
         val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java);
 
@@ -89,6 +103,7 @@ fun TaskModal() {
         fun handleApiSuccess() {
             isProcessing = false
             RefreshCounter.refreshListCount++
+            RefreshCounter.refreshTodayCount++
             SelectedView.openModal = Modal.NONE
         }
 
@@ -122,7 +137,9 @@ fun TaskModal() {
     }
 
 
-    Dialog(onDismissRequest = { SelectedView.openModal = Modal.NONE }) {
+    Dialog(onDismissRequest = {
+        SelectedView.openModal = Modal.NONE; SelectedView.selectedTask = null
+    }) {
         Box(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -133,7 +150,8 @@ fun TaskModal() {
                     value = taskName,
                     onValueChange = { taskName = it },
                     label = { Text("Task Name") },
-                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                    modifier = Modifier.focusRequester(focusRequester)
                 )
 
                 DateTextField(
@@ -142,7 +160,7 @@ fun TaskModal() {
                     label = "Due Date"
                 )
 
-                val hasValidDateString = dateState.length == 8
+                val hasValidDateString = dateState.isEmpty() || dateState.length == 8
                 Button(
                     onClick = { handleSubmitTask() },
                     enabled = !isProcessing && hasValidDateString

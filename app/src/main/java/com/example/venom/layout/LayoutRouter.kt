@@ -10,16 +10,16 @@ import com.example.venom.TaskModal
 import com.example.venom.classes.Modal
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
-import com.example.venom.layout.listactivity.ListActivity
+import com.example.venom.layout.listactivity.ListView
 
 @Composable
 fun LayoutRouter() {
     Box(modifier = Modifier.padding(10.dp)) {
         when (SelectedView.selectedView) {
-            Views.TODAY -> Text("Today")
+            Views.TODAY -> TodayView()
             Views.UPCOMING -> Text("Upcoming")
             Views.COMPLETED -> Text("Completed")
-            Views.LIST -> ListActivity(list = SelectedView.selectedList!!)
+            Views.LIST -> ListView(list = SelectedView.selectedList!!)
         }
 
         when (SelectedView.openModal) {

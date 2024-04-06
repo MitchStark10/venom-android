@@ -7,5 +7,6 @@ import androidx.compose.runtime.setValue
 class RefreshCounter {
     companion object {
         var refreshListCount: Int by mutableIntStateOf(0)
+        var refreshTodayCount: Int by mutableIntStateOf(0)
     }
 }
