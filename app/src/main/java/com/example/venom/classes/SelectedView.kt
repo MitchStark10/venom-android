@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 enum class Modal {
-    NEW_TASK_MODAL,
+    TASK_MODAL,
     NONE
 }
 
@@ -21,5 +21,6 @@ class SelectedView {
         var selectedView by mutableStateOf(Views.TODAY)
         var selectedList: List? by mutableStateOf(null)
         var openModal: Modal by mutableStateOf(Modal.NONE)
+        var selectedTask: Task? by mutableStateOf(null)
     }
 }

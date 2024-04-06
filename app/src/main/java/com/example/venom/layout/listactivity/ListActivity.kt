@@ -29,7 +29,7 @@ import com.example.venom.classes.List
 import com.example.venom.classes.Modal
 import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
-import com.example.venom.components.LabelledCheckBox
+import com.example.venom.components.TaskCheckbox
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
 import retrofit2.Call
@@ -47,7 +47,7 @@ fun ListActivity(list: List) {
     val groupedTasks = list.tasks.sortedByDescending { it.dueDate }.groupBy { it.dueDate }
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { SelectedView.openModal = Modal.NEW_TASK_MODAL }) {
+            FloatingActionButton(onClick = { SelectedView.openModal = Modal.TASK_MODAL }) {
                 Icon(Icons.Filled.Add, "Add New Task")
             }
         }
@@ -102,10 +102,11 @@ fun ListActivity(list: List) {
                         })
                     }
 
-                    LabelledCheckBox(
+                    TaskCheckbox(
                         checked = isCompleted,
                         onCheckedChange = { handleTaskCompletion(it) },
-                        label = task.taskName
+                        label = task.taskName,
+                        task = task
                     )
                     Spacer(modifier = Modifier.size(10.dp))
                 }

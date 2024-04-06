@@ -1,5 +1,6 @@
 package com.example.venom.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -15,13 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.venom.classes.Modal
+import com.example.venom.classes.SelectedView
+import com.example.venom.classes.Task
 
 @Composable
-fun LabelledCheckBox(
+fun TaskCheckbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit),
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    task: Task
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -40,7 +45,11 @@ fun LabelledCheckBox(
 
         Text(
             text = label,
-            overflow = TextOverflow.Visible
+            overflow = TextOverflow.Visible,
+            modifier = Modifier.clickable {
+                SelectedView.selectedTask = task;
+                SelectedView.openModal = Modal.TASK_MODAL
+            }
         )
     }
 }

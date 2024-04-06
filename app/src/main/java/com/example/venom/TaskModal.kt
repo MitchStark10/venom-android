@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.venom.classes.CreateTaskRequestBody
@@ -35,14 +37,26 @@ import java.util.Date
 import java.util.TimeZone
 
 @Composable
-fun NewTaskModal() {
+fun TaskModal() {
+    val initialTaskName = SelectedView.selectedTask?.taskName ?: ""
+    var initialTaskDate =
+        if (SelectedView.selectedTask != null) "" else SimpleDateFormat("MMddyyyy").format(Calendar.getInstance().time)
+
+    if (!SelectedView.selectedTask?.dueDate.isNullOrEmpty()) {
+        initialTaskDate =
+            SelectedView.selectedTask!!.dueDate!!.slice(5..6) +
+                    SelectedView.selectedTask!!.dueDate!!.slice(8..9) +
+                    SelectedView.selectedTask!!.dueDate!!.slice(0..3)
+    }
+
+    println("initial task date: " + SelectedView.selectedTask?.dueDate)
 
     var taskName by remember {
-        mutableStateOf("")
+        mutableStateOf(initialTaskName)
     }
 
     var dateState by remember {
-        mutableStateOf(SimpleDateFormat("MMddyyyy").format(Calendar.getInstance().time))
+        mutableStateOf(initialTaskDate)
     }
 
     var isProcessing by remember {
@@ -51,7 +65,7 @@ fun NewTaskModal() {
 
     val toastContext = LocalContext.current
 
-    fun handleSubmitNewTask() {
+    fun handleSubmitTask() {
         isProcessing = true
         val initialDateStr =
             dateState.slice(0..1) + "/" + dateState.slice(2..3) + "/" + dateState.slice(4..7) + " 12:00"
@@ -59,28 +73,52 @@ fun NewTaskModal() {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         sdf.timeZone = TimeZone.getTimeZone("CET")
         val formattedDateTime = sdf.format(date)
-        val newTaskBody =
-            CreateTaskRequestBody(taskName, formattedDateTime, SelectedView.selectedList!!.id)
+
         val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java);
 
-        taskService.createTask(newTaskBody).enqueue(object : Callback<Unit> {
-            override fun onFailure(call: Call<Unit>, t: Throwable) {
-                isProcessing = false
-                Toast.makeText(
-                    toastContext,
-                    "Unable to mark task as completed",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
+        fun handleApiFailure() {
+            isProcessing = false
+            Toast.makeText(
+                toastContext,
+                "Unable to mark task as completed",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
 
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                isProcessing = false
-                RefreshCounter.refreshListCount++
-                SelectedView.openModal = Modal.NONE
-            }
-        })
+        fun handleApiSuccess() {
+            isProcessing = false
+            RefreshCounter.refreshListCount++
+            SelectedView.openModal = Modal.NONE
+        }
 
+
+        if (SelectedView.selectedTask != null) {
+            SelectedView.selectedTask!!.taskName = taskName
+            SelectedView.selectedTask!!.dueDate = formattedDateTime
+            taskService.updateTask(SelectedView.selectedTask!!.id, SelectedView.selectedTask!!)
+                .enqueue(object : Callback<Unit> {
+                    override fun onFailure(call: Call<Unit>, t: Throwable) {
+                        handleApiFailure()
+                    }
+
+                    override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                        handleApiSuccess()
+                    }
+                })
+        } else {
+            val taskRequestBody =
+                CreateTaskRequestBody(taskName, formattedDateTime, SelectedView.selectedList!!.id)
+            taskService.createTask(taskRequestBody).enqueue(object : Callback<Unit> {
+                override fun onFailure(call: Call<Unit>, t: Throwable) {
+                    handleApiFailure()
+                }
+
+                override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                    handleApiSuccess()
+                }
+            })
+        }
     }
 
 
@@ -94,7 +132,9 @@ fun NewTaskModal() {
                 OutlinedTextField(
                     value = taskName,
                     onValueChange = { taskName = it },
-                    label = { Text("Task Name") })
+                    label = { Text("Task Name") },
+                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+                )
 
                 DateTextField(
                     dateState = dateState,
@@ -104,10 +144,11 @@ fun NewTaskModal() {
 
                 val hasValidDateString = dateState.length == 8
                 Button(
-                    onClick = { handleSubmitNewTask() },
+                    onClick = { handleSubmitTask() },
                     enabled = !isProcessing && hasValidDateString
                 ) {
-                    var buttonText = "Create Task"
+                    var buttonText =
+                        if (SelectedView.selectedTask != null) "Update Task" else "Create Task"
 
                     if (isProcessing) {
                         buttonText = "Processing..."

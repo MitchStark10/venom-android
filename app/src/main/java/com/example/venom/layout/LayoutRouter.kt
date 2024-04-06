@@ -6,7 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.venom.NewTaskModal
+import com.example.venom.TaskModal
 import com.example.venom.classes.Modal
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
@@ -23,7 +23,7 @@ fun LayoutRouter() {
         }
 
         when (SelectedView.openModal) {
-            Modal.NEW_TASK_MODAL -> NewTaskModal()
+            Modal.TASK_MODAL -> TaskModal()
             Modal.NONE -> Unit
         }
     }
