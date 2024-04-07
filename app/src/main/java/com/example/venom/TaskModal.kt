@@ -105,6 +105,7 @@ fun TaskModal() {
             RefreshCounter.refreshListCount++
             RefreshCounter.refreshTodayCount++
             SelectedView.openModal = Modal.NONE
+            SelectedView.selectedTask = null
         }
 
 
@@ -157,8 +158,9 @@ fun TaskModal() {
                 DateTextField(
                     dateState = dateState,
                     setDateState = { dateState = it },
-                    label = "Due Date"
-                )
+                    label = "Due Date",
+
+                    )
 
                 val hasValidDateString = dateState.isEmpty() || dateState.length == 8
                 Button(

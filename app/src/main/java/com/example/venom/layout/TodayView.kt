@@ -19,6 +19,7 @@ import com.example.venom.services.TaskService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.Instant
 
 @Composable
 fun TodayView() {
@@ -31,7 +32,9 @@ fun TodayView() {
     LaunchedEffect(SelectedView.selectedView, RefreshCounter.refreshTodayCount) {
         if (SelectedView.selectedView === Views.TODAY) {
             val listService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-            listService.getTodaysTasks().enqueue(object : Callback<ArrayList<Task>> {
+            val now = Instant.now()
+            val isoString = now.toString()
+            listService.getTodaysTasks(isoString).enqueue(object : Callback<ArrayList<Task>> {
                 override fun onFailure(call: Call<ArrayList<Task>>, t: Throwable) {
                     isProcessing = false
                 }
@@ -40,7 +43,6 @@ fun TodayView() {
                     call: Call<ArrayList<Task>>,
                     response: Response<ArrayList<Task>>
                 ) {
-
                     isProcessing = false
                     tasks.clear()
                     response.body()?.let { tasks.addAll(it) }

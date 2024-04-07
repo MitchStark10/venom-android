@@ -19,6 +19,7 @@ fun DateTextField(dateState: String, setDateState: (newVal: String) -> Unit, lab
         },
         visualTransformation = DateTransformation(),
         singleLine = true,
-        label = { Text(label) }
+        label = { Text(label) },
+        placeholder = { Text(text = "MM/DD/YYYY") }
     )
 }
