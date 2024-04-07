@@ -4,6 +4,7 @@ import com.example.venom.classes.CreateTaskRequestBody
 import com.example.venom.classes.Task
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -23,6 +24,9 @@ interface TaskService {
 
     @GET("/tasks/completed")
     fun getCompletedTasks(): Call<ArrayList<Task>>
+
+    @DELETE("/tasks/completed")
+    fun deleteCompletedTasks(): Call<Unit>
 
     @GET("/tasks/upcoming")
     fun getUpcomingTasks(): Call<ArrayList<Task>>

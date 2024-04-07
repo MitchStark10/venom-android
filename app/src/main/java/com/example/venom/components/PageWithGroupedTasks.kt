@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,10 +34,18 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 
 @Composable
-fun PageWithGroupedTasks(title: String, tasks: ArrayList<Task>, groupBy: GroupBy) {
+fun PageWithGroupedTasks(
+    title: String,
+    tasks: ArrayList<Task>,
+    groupBy: GroupBy,
+    showDeleteButton: Boolean = false
+) {
     val toastContext = LocalContext.current
     val groupedTasks = tasks.sortedByDescending { it.dueDate }
         .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list.listName }
+    var isProcessingDeleteTasks by remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = androidx.compose.ui.Modifier
@@ -87,7 +96,6 @@ fun PageWithGroupedTasks(title: String, tasks: ArrayList<Task>, groupBy: GroupBy
 
                         override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                             RefreshCounter.refreshListCount++
-                            RefreshCounter.refreshTodayCount++
                             isCompleted = false
                         }
                     })
@@ -103,6 +111,28 @@ fun PageWithGroupedTasks(title: String, tasks: ArrayList<Task>, groupBy: GroupBy
             }
 
             Spacer(modifier = Modifier.size(20.dp))
+        }
+
+        if (showDeleteButton) {
+            Button(
+                onClick = {
+                    isProcessingDeleteTasks = true
+                    val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+                    taskService.deleteCompletedTasks().enqueue(object : Callback<Unit> {
+                        override fun onFailure(call: Call<Unit>, t: Throwable) {
+                            isProcessingDeleteTasks = false
+                        }
+
+                        override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                            RefreshCounter.refreshListCount++;
+                            isProcessingDeleteTasks = false
+                        }
+                    })
+                },
+                enabled = !isProcessingDeleteTasks
+            ) {
+                Text(text = if (isProcessingDeleteTasks) "Processing..." else "Delete All Tasks")
+            }
         }
     }
 }

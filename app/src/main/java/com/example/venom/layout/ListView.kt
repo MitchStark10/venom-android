@@ -1,4 +1,4 @@
-package com.example.venom.layout.listactivity
+package com.example.venom.layout
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding

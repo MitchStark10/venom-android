@@ -103,7 +103,6 @@ fun TaskModal() {
         fun handleApiSuccess() {
             isProcessing = false
             RefreshCounter.refreshListCount++
-            RefreshCounter.refreshTodayCount++
             SelectedView.openModal = Modal.NONE
             SelectedView.selectedTask = null
         }

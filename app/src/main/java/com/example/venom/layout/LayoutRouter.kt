@@ -10,7 +10,6 @@ import com.example.venom.TaskModal
 import com.example.venom.classes.Modal
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
-import com.example.venom.layout.listactivity.ListView
 
 @Composable
 fun LayoutRouter() {
@@ -18,7 +17,7 @@ fun LayoutRouter() {
         when (SelectedView.selectedView) {
             Views.TODAY -> TodayView()
             Views.UPCOMING -> Text("Upcoming")
-            Views.COMPLETED -> Text("Completed")
+            Views.COMPLETED -> CompletedView()
             Views.LIST -> ListView(list = SelectedView.selectedList!!)
         }
 

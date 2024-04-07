@@ -19,31 +19,28 @@ import com.example.venom.services.TaskService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.Instant
 
 @Composable
-fun TodayView() {
+fun CompletedView() {
 
-    var tasks = remember {
+    val tasks = remember {
         mutableStateListOf<Task>()
     }
-    var isProcessing by remember { mutableStateOf(true) }
+    var isFetchingTaskData by remember { mutableStateOf(true) }
+    val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
 
     LaunchedEffect(SelectedView.selectedView, RefreshCounter.refreshListCount) {
-        if (SelectedView.selectedView === Views.TODAY) {
-            val listService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-            val now = Instant.now()
-            val isoString = now.toString()
-            listService.getTodaysTasks(isoString).enqueue(object : Callback<ArrayList<Task>> {
+        if (SelectedView.selectedView === Views.COMPLETED) {
+            taskService.getCompletedTasks().enqueue(object : Callback<ArrayList<Task>> {
                 override fun onFailure(call: Call<ArrayList<Task>>, t: Throwable) {
-                    isProcessing = false
+                    isFetchingTaskData = false
                 }
 
                 override fun onResponse(
                     call: Call<ArrayList<Task>>,
                     response: Response<ArrayList<Task>>
                 ) {
-                    isProcessing = false
+                    isFetchingTaskData = false
                     tasks.clear()
                     response.body()?.let { tasks.addAll(it) }
                 }
@@ -51,13 +48,14 @@ fun TodayView() {
         }
     }
 
-    if (isProcessing) {
+    if (isFetchingTaskData) {
         CircularProgressIndicator()
     } else {
         PageWithGroupedTasks(
-            title = "Today",
+            title = "Completed",
             tasks = ArrayList(tasks.toList()),
-            groupBy = GroupBy.LIST
+            groupBy = GroupBy.LIST,
+            showDeleteButton = tasks.size > 0
         )
     }
 }
