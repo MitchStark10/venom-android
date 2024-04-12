@@ -1,6 +1,8 @@
 [versions]
 agp = "8.3.1"
 converterGson = "2.9.0"
+datetime = "0.2.9"
+datetimeVersion = "0.9.0"
 gson = "2.10.1"
 kotlin = "1.9.0"
 coreKtx = "1.12.0"
@@ -14,7 +16,9 @@ okhttp = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+compose-material-dialogs-datetime = { module = "io.github.vanpra.compose-material-dialogs:datetime", version.ref = "datetimeVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+datetime = { module = "com.vanpra.compose-material-dialogs:datetime", version.ref = "datetime" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

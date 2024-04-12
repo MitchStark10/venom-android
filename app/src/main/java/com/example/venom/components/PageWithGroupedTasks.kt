@@ -25,13 +25,12 @@ import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.Task
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
+import com.example.venom.utils.getDateFromDateString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.TimeZone
 
 @Composable
 fun PageWithGroupedTasks(
@@ -70,8 +69,11 @@ fun PageWithGroupedTasks(
                     "No Due Date"
                 } else {
                     DateUtils.getRelativeTimeSpanString(
-                        LocalDateTime.parse(group.key, DateTimeFormatter.ISO_DATE_TIME)
-                            .toInstant(ZoneOffset.UTC).toEpochMilli(),
+                        getDateFromDateString(
+                            group.key,
+                            "yyyy-MM-dd",
+                            TimeZone.getDefault().id
+                        )!!.time,
                         Date().time,
                         DateUtils.DAY_IN_MILLIS,
                     ).toString()

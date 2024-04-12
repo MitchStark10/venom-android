@@ -1,65 +1,69 @@
 package com.example.venom
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.venom.classes.CreateTaskRequestBody
 import com.example.venom.classes.Modal
 import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
-import com.example.venom.components.DateTextField
+import com.example.venom.components.CustomDatePicker
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
+import com.example.venom.utils.getDateFromDateString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 import java.util.TimeZone
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskModal() {
     val initialTaskName = SelectedView.selectedTask?.taskName ?: ""
-    var initialTaskDate =
-        if (SelectedView.selectedTask != null) "" else SimpleDateFormat("MMddyyyy").format(Calendar.getInstance().time)
+    var initialTaskDate: String? = null
 
     if (!SelectedView.selectedTask?.dueDate.isNullOrEmpty()) {
         initialTaskDate =
-            SelectedView.selectedTask!!.dueDate!!.slice(5..6) +
-                    SelectedView.selectedTask!!.dueDate!!.slice(8..9) +
+            SelectedView.selectedTask!!.dueDate!!.slice(5..6) + "/" +
+                    SelectedView.selectedTask!!.dueDate!!.slice(8..9) + "/" +
                     SelectedView.selectedTask!!.dueDate!!.slice(0..3)
     }
 
-    println("initial task date: " + SelectedView.selectedTask?.dueDate)
 
     var taskName by remember {
         mutableStateOf(initialTaskName)
     }
-    var dateState by remember {
-        mutableStateOf(initialTaskDate)
-    }
+    val datePickerState =
+        rememberDatePickerState(initialSelectedDateMillis = getDateFromDateString(initialTaskDate)?.time)
     var isProcessing by remember {
         mutableStateOf(false)
     }
@@ -71,22 +75,20 @@ fun TaskModal() {
         }
     }
 
-
     val toastContext = LocalContext.current
 
+    @SuppressLint("SimpleDateFormat")
     fun handleSubmitTask() {
         isProcessing = true
 
         var formattedDateTime: String? = null
 
-        if (dateState.length == 8) {
-            val initialDateStr =
-                dateState.slice(0..1) + "/" + dateState.slice(2..3) + "/" + dateState.slice(4..7) + " 12:00"
-            val date: Date = SimpleDateFormat("MM/dd/yyyy").parse(initialDateStr)
+        if (datePickerState.selectedDateMillis != null) {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-            sdf.timeZone = TimeZone.getTimeZone("CET")
-            formattedDateTime = sdf.format(date)
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
+            formattedDateTime = sdf.format(datePickerState.selectedDateMillis)
         }
+        println("formattedDateTime: $formattedDateTime")
 
         val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java);
 
@@ -137,12 +139,16 @@ fun TaskModal() {
     }
 
 
-    Dialog(onDismissRequest = {
-        SelectedView.openModal = Modal.NONE; SelectedView.selectedTask = null
-    }) {
+    Dialog(
+        onDismissRequest = {
+            SelectedView.openModal = Modal.NONE; SelectedView.selectedTask = null
+        },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Box(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
+                .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
                 .padding(10.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -154,17 +160,12 @@ fun TaskModal() {
                     modifier = Modifier.focusRequester(focusRequester)
                 )
 
-                DateTextField(
-                    dateState = dateState,
-                    setDateState = { dateState = it },
-                    label = "Due Date",
+                CustomDatePicker(datePickerState = datePickerState)
 
-                    )
-
-                val hasValidDateString = dateState.isEmpty() || dateState.length == 8
                 Button(
                     onClick = { handleSubmitTask() },
-                    enabled = !isProcessing && hasValidDateString
+                    enabled = !isProcessing,
+                    modifier = Modifier.align(alignment = Alignment.End)
                 ) {
                     var buttonText =
                         if (SelectedView.selectedTask != null) "Update Task" else "Create Task"
@@ -176,6 +177,5 @@ fun TaskModal() {
                 }
             }
         }
-
     }
 }
