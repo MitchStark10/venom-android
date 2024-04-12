@@ -41,8 +41,15 @@ fun PageWithGroupedTasks(
     showDeleteButton: Boolean = false
 ) {
     val toastContext = LocalContext.current
-    val groupedTasks = tasks.sortedByDescending { it.dueDate }
+    val groupedTasks = tasks.sortedBy { it.dueDate }
         .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list.listName }
+
+    val sortedGroups = groupedTasks.entries.filter { !it.key.isNullOrEmpty() }.toMutableList()
+    val noDueDateGroup = groupedTasks.entries.find { it.key.isNullOrEmpty() }
+
+    if (noDueDateGroup != null) {
+        sortedGroups.add(noDueDateGroup)
+    }
     var isProcessingDeleteTasks by remember {
         mutableStateOf(false)
     }
@@ -55,14 +62,14 @@ fun PageWithGroupedTasks(
         Spacer(modifier = Modifier.size(10.dp))
         Divider()
         Spacer(modifier = Modifier.size(20.dp))
-        for (group in groupedTasks.entries) {
+        for (group in sortedGroups) {
             var groupText = ""
 
             if (groupBy === GroupBy.DATE) {
-                if (group.key.isNullOrEmpty()) {
-                    groupText = "No Due Date"
+                groupText = if (group.key.isNullOrEmpty()) {
+                    "No Due Date"
                 } else {
-                    groupText = DateUtils.getRelativeTimeSpanString(
+                    DateUtils.getRelativeTimeSpanString(
                         LocalDateTime.parse(group.key, DateTimeFormatter.ISO_DATE_TIME)
                             .toInstant(ZoneOffset.UTC).toEpochMilli(),
                         Date().time,
