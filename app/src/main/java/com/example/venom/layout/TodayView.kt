@@ -16,10 +16,12 @@ import com.example.venom.classes.Views
 import com.example.venom.components.PageWithGroupedTasks
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
+import com.example.venom.utils.getDateStringFromMillis
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.Instant
+import java.util.Date
+import java.util.TimeZone
 
 @Composable
 fun TodayView() {
@@ -32,22 +34,27 @@ fun TodayView() {
     LaunchedEffect(SelectedView.selectedView, RefreshCounter.refreshListCount) {
         if (SelectedView.selectedView === Views.TODAY) {
             val listService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-            val now = Instant.now()
-            val isoString = now.toString()
-            listService.getTodaysTasks(isoString).enqueue(object : Callback<ArrayList<Task>> {
-                override fun onFailure(call: Call<ArrayList<Task>>, t: Throwable) {
-                    isProcessing = false
-                }
+            listService.getTodaysTasks(
+                getDateStringFromMillis(
+                    Date().time,
+                    "yyyy-MM-dd",
+                    TimeZone.getDefault().id
+                )
+            )
+                .enqueue(object : Callback<ArrayList<Task>> {
+                    override fun onFailure(call: Call<ArrayList<Task>>, t: Throwable) {
+                        isProcessing = false
+                    }
 
-                override fun onResponse(
-                    call: Call<ArrayList<Task>>,
-                    response: Response<ArrayList<Task>>
-                ) {
-                    isProcessing = false
-                    tasks.clear()
-                    response.body()?.let { tasks.addAll(it) }
-                }
-            })
+                    override fun onResponse(
+                        call: Call<ArrayList<Task>>,
+                        response: Response<ArrayList<Task>>
+                    ) {
+                        isProcessing = false
+                        tasks.clear()
+                        response.body()?.let { tasks.addAll(it) }
+                    }
+                })
         }
     }
 

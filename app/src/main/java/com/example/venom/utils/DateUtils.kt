@@ -12,10 +12,14 @@ import java.util.TimeZone
  * @return String representing date in specified format
  */
 @SuppressLint("SimpleDateFormat")
-fun getDateStringFromMillis(milliSeconds: Long, dateFormat: String? = "MM/dd/yyyy"): String {
+fun getDateStringFromMillis(
+    milliSeconds: Long,
+    dateFormat: String? = "MM/dd/yyyy",
+    timezoneId: String? = "UTC"
+): String {
     val date = Date(milliSeconds)
     val format = SimpleDateFormat(dateFormat)
-    format.timeZone = TimeZone.getTimeZone("UTC")
+    format.timeZone = TimeZone.getTimeZone(timezoneId)
     return format.format(date)
 }
 
