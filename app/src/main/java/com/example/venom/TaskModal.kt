@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
@@ -157,7 +158,9 @@ fun TaskModal() {
                     onValueChange = { taskName = it },
                     label = { Text("Task Name") },
                     keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .fillMaxWidth()
                 )
 
                 CustomDatePicker(datePickerState = datePickerState)
@@ -173,6 +176,7 @@ fun TaskModal() {
                     if (isProcessing) {
                         buttonText = "Processing..."
                     }
+
                     Text(buttonText)
                 }
             }

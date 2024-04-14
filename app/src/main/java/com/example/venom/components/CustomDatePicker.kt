@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import com.example.venom.utils.getDateStringFromMillis
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,6 +29,7 @@ fun CustomDatePicker(datePickerState: DatePickerState) {
     val dateText = if (datePickerState.selectedDateMillis != null) getDateStringFromMillis(
         datePickerState.selectedDateMillis!!
     ) else "No Date"
+    val focusManager = LocalFocusManager.current
 
     Column {
         OutlinedTextField(
@@ -40,7 +42,10 @@ fun CustomDatePicker(datePickerState: DatePickerState) {
             enabled = false,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showDateCalendar = !showDateCalendar },
+                .clickable {
+                    showDateCalendar = !showDateCalendar;
+                    focusManager.clearFocus()
+                },
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledBorderColor = MaterialTheme.colorScheme.outline,
