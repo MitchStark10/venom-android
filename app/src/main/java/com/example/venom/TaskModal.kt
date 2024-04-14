@@ -44,6 +44,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +85,8 @@ fun TaskModal() {
         var formattedDateTime: String? = null
 
         if (datePickerState.selectedDateMillis != null) {
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
             formattedDateTime = sdf.format(datePickerState.selectedDateMillis)
         }
         println("formattedDateTime: $formattedDateTime")
