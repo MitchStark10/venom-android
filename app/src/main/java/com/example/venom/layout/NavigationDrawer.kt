@@ -162,20 +162,24 @@ fun NavigationDrawer(
                 TopAppBar(
                     title = { Text("Venom", fontSize = 30.sp, fontWeight = FontWeight.Bold) },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                     navigationIcon = {
                         IconButton(onClick = {
                             closeDrawer()
                         }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "")
+                            Icon(
+                                Icons.Filled.Menu,
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
                     },
                 )
             }
         ) { contentPadding ->
-            Column(Modifier.padding(contentPadding)) {
+            Column(Modifier.padding(top = contentPadding.calculateTopPadding())) {
                 content()
             }
         }
