@@ -52,7 +52,6 @@ fun CompletedView() {
         CircularProgressIndicator()
     } else {
         PageWithGroupedTasks(
-            title = "Completed",
             tasks = ArrayList(tasks.toList()),
             groupBy = GroupBy.LIST,
             showDeleteButton = tasks.size > 0

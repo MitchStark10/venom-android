@@ -62,7 +62,6 @@ fun TodayView() {
         CircularProgressIndicator()
     } else {
         PageWithGroupedTasks(
-            title = "Today",
             tasks = ArrayList(tasks.toList()),
             groupBy = GroupBy.LIST
         )

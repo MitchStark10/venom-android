@@ -34,7 +34,6 @@ import java.util.TimeZone
 
 @Composable
 fun PageWithGroupedTasks(
-    title: String,
     tasks: ArrayList<Task>,
     groupBy: GroupBy,
     showDeleteButton: Boolean = false
@@ -57,10 +56,6 @@ fun PageWithGroupedTasks(
         modifier = androidx.compose.ui.Modifier
             .verticalScroll(rememberScrollState())
     ) {
-        Text(title, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.size(10.dp))
-        Divider()
-        Spacer(modifier = Modifier.size(20.dp))
         for (group in sortedGroups) {
             var groupText = ""
 
@@ -83,7 +78,7 @@ fun PageWithGroupedTasks(
             }
 
 
-            Text(text = groupText, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = groupText, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Divider()
             Spacer(modifier = Modifier.size(10.dp))
 

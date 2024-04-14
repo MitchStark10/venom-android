@@ -26,7 +26,7 @@ fun ListView(list: List) {
         }
     ) {
         Box {
-            PageWithGroupedTasks(title = list.listName, tasks = list.tasks, groupBy = GroupBy.DATE)
+            PageWithGroupedTasks(tasks = list.tasks, groupBy = GroupBy.DATE)
         }
     }
 }

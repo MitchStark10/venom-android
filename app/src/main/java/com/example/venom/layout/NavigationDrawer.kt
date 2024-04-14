@@ -40,6 +40,7 @@ import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
 import com.example.venom.services.ListService
 import com.example.venom.services.RetrofitBuilder
+import com.example.venom.utils.getTitleText
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -160,7 +161,13 @@ fun NavigationDrawer(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Venom", fontSize = 30.sp, fontWeight = FontWeight.Bold) },
+                    title = {
+                        Text(
+                            getTitleText(),
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
