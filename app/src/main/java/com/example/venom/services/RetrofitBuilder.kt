@@ -52,7 +52,7 @@ class RetrofitBuilder {
             val client: OkHttpClient = okhttpClientBuilder.build()
 
             this.instance = Builder()
-                .baseUrl("https://venom-backend-wmmm.onrender.com")
+                .baseUrl("https://venom-backend-pjv4.onrender.com")
                 .addConverterFactory(
                     GsonConverterFactory.create(
                         GsonBuilder().serializeNulls().create()
