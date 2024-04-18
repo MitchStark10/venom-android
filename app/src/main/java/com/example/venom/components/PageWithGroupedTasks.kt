@@ -1,5 +1,6 @@
 package com.example.venom.components
 
+import android.annotation.SuppressLint
 import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -30,9 +31,11 @@ import com.example.venom.utils.getDateFromDateString
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
+@SuppressLint("SimpleDateFormat")
 @Composable
 fun PageWithGroupedTasks(
     tasks: ArrayList<Task>,
@@ -62,19 +65,23 @@ fun PageWithGroupedTasks(
         for (group in sortedGroups) {
             var groupText = ""
 
+
+
             if (groupBy === GroupBy.DATE) {
-                groupText = if (group.key.isNullOrEmpty()) {
-                    "No Due Date"
+                if (group.key.isNullOrEmpty()) {
+                    groupText = "No Due Date"
                 } else {
-                    DateUtils.getRelativeTimeSpanString(
-                        getDateFromDateString(
-                            group.key,
-                            "yyyy-MM-dd",
-                            TimeZone.getDefault().id
-                        )!!.time,
+                    val groupDate = getDateFromDateString(
+                        group.key,
+                        "yyyy-MM-dd",
+                        TimeZone.getDefault().id
+                    )
+
+                    groupText = DateUtils.getRelativeTimeSpanString(
+                        groupDate!!.time,
                         Date().time,
                         DateUtils.DAY_IN_MILLIS,
-                    ).toString()
+                    ).toString() + " (" + SimpleDateFormat("EEEE, MM/dd").format(groupDate) + ")"
                 }
             } else if (groupBy == GroupBy.LIST && !group.key.isNullOrEmpty()) {
                 groupText = group.key!!
