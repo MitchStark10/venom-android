@@ -29,5 +29,5 @@ interface TaskService {
     fun deleteCompletedTasks(): Call<Unit>
 
     @GET("/tasks/upcoming")
-    fun getUpcomingTasks(): Call<ArrayList<Task>>
+    fun getUpcomingTasks(@Query("today") today: String?): Call<ArrayList<Task>>
 }

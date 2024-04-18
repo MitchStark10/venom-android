@@ -4,7 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +37,10 @@ fun CustomDatePicker(datePickerState: DatePickerState) {
             onValueChange = { showDateCalendar = true },
             label = { Text(text = "Due Date") },
             trailingIcon = {
-                Icon(Icons.Default.DateRange, contentDescription = "Edit Date")
+                Icon(
+                    Icons.Default.Clear,
+                    contentDescription = "Edit Date",
+                    modifier = Modifier.clickable { datePickerState.setSelection(null) })
             },
             enabled = false,
             modifier = Modifier
@@ -62,7 +65,7 @@ fun CustomDatePicker(datePickerState: DatePickerState) {
                 state = datePickerState,
                 title = null,
                 headline = null,
-                showModeToggle = false
+                showModeToggle = false,
             )
         }
     }

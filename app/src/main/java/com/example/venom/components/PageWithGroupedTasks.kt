@@ -4,6 +4,7 @@ import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -36,7 +37,8 @@ import java.util.TimeZone
 fun PageWithGroupedTasks(
     tasks: ArrayList<Task>,
     groupBy: GroupBy,
-    showDeleteButton: Boolean = false
+    showDeleteButton: Boolean = false,
+    showListNameInTask: Boolean = false,
 ) {
     val toastContext = LocalContext.current
     val groupedTasks = tasks.sortedBy { it.dueDate }
@@ -56,6 +58,7 @@ fun PageWithGroupedTasks(
         modifier = androidx.compose.ui.Modifier
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
         for (group in sortedGroups) {
             var groupText = ""
 
@@ -109,7 +112,8 @@ fun PageWithGroupedTasks(
                     checked = isCompleted,
                     onCheckedChange = { handleTaskCompletion(it) },
                     label = task.taskName,
-                    task = task
+                    task = task,
+                    showListName = showListNameInTask
                 )
                 Spacer(modifier = Modifier.size(10.dp))
             }
