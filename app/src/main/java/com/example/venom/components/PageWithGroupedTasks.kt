@@ -62,10 +62,12 @@ fun PageWithGroupedTasks(
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(10.dp))
+
+        if (sortedGroups.size == 0) {
+            Text(text = "No tasks found.")
+        }
         for (group in sortedGroups) {
             var groupText = ""
-
-
 
             if (groupBy === GroupBy.DATE) {
                 if (group.key.isNullOrEmpty()) {
