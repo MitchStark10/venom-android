@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +37,7 @@ import com.example.venom.classes.List
 import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
+import com.example.venom.components.CenteredLoader
 import com.example.venom.services.ListService
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.utils.getTitleText
@@ -153,7 +153,7 @@ fun NavigationDrawer(
                 }
 
                 if (isLoading) {
-                    CircularProgressIndicator()
+                    CenteredLoader()
                 }
             }
         }

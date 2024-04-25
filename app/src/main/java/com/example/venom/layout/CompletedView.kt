@@ -1,6 +1,5 @@
 package com.example.venom.layout
 
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -13,6 +12,7 @@ import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Task
 import com.example.venom.classes.Views
+import com.example.venom.components.CenteredLoader
 import com.example.venom.components.PageWithGroupedTasks
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
@@ -49,7 +49,7 @@ fun CompletedView() {
     }
 
     if (isFetchingTaskData) {
-        CircularProgressIndicator()
+        CenteredLoader()
     } else {
         PageWithGroupedTasks(
             tasks = ArrayList(tasks.toList()),
