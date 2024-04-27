@@ -1,12 +1,14 @@
 package com.example.venom.layout
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.venom.classes.List
+import com.example.venom.classes.Modal
 import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
@@ -154,6 +157,17 @@ fun NavigationDrawer(
 
                 if (isLoading) {
                     CenteredLoader()
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                    NavigationDrawerItem(label = {
+                        NavigationDrawerRow(
+                            text = "Add New Task",
+                            icon = Icons.Outlined.Add
+                        )
+                    },
+                        selected = false,
+                        onClick = { SelectedView.openModal = Modal.LIST_MODAL }
+                    )
                 }
             }
         }

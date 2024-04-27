@@ -25,7 +25,7 @@ fun LayoutRouter() {
 
         when (SelectedView.openModal) {
             Modal.TASK_MODAL -> TaskModal()
-            Modal.NONE -> Unit
+            else -> Unit
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 
 enum class Modal {
     TASK_MODAL,
+    LIST_MODAL,
     NONE
 }
 
