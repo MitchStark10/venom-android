@@ -6,3 +6,7 @@ data class List(
     val listName: String,
     val tasks: ArrayList<Task>
 )
+
+data class ListCreationRequestBody(
+    val listName: String
+)

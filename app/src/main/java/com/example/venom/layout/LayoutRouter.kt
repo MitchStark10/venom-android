@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.venom.ListModal
 import com.example.venom.TaskModal
 import com.example.venom.classes.Modal
 import com.example.venom.classes.SelectedView
@@ -25,6 +26,7 @@ fun LayoutRouter() {
 
         when (SelectedView.openModal) {
             Modal.TASK_MODAL -> TaskModal()
+            Modal.LIST_MODAL -> ListModal()
             else -> Unit
         }
     }

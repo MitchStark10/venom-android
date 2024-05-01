@@ -56,11 +56,10 @@ fun NavigationDrawer(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var lists = remember {
+    val lists = remember {
         mutableStateListOf<List>()
     }
     var isLoading by remember { mutableStateOf(true) }
-    println("Renderign with lists length ${lists.size}")
 
     fun closeDrawer() {
         scope.launch() {
@@ -112,7 +111,7 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
                     },
-                    selected = false,
+                    selected = SelectedView.selectedView == Views.TODAY,
                     onClick = {
                         SelectedView.selectedView = Views.TODAY
                         closeDrawer()
@@ -122,7 +121,7 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Upcoming", icon = Icons.Filled.ArrowForward)
                     },
-                    selected = false,
+                    selected = SelectedView.selectedView == Views.UPCOMING,
                     onClick = {
                         SelectedView.selectedView = Views.UPCOMING
                         closeDrawer()
@@ -132,7 +131,7 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Completed", icon = Icons.Filled.Done)
                     },
-                    selected = false,
+                    selected = SelectedView.selectedView == Views.COMPLETED,
                     onClick = {
                         SelectedView.selectedView = Views.COMPLETED
                         closeDrawer()
@@ -147,7 +146,7 @@ fun NavigationDrawer(
                                 icon = Icons.Outlined.CheckCircle
                             )
                         },
-                        selected = false,
+                        selected = SelectedView.selectedView == Views.LIST && SelectedView.selectedList == list,
                         onClick = {
                             SelectedView.selectedView = Views.LIST
                             SelectedView.selectedList = list
@@ -161,7 +160,7 @@ fun NavigationDrawer(
                     Spacer(modifier = Modifier.weight(1f))
                     NavigationDrawerItem(label = {
                         NavigationDrawerRow(
-                            text = "Add New Task",
+                            text = "Add New List",
                             icon = Icons.Outlined.Add
                         )
                     },
