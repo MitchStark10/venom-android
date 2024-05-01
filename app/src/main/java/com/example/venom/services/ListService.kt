@@ -4,8 +4,10 @@ import com.example.venom.classes.List
 import com.example.venom.classes.ListCreationRequestBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ListService {
 
@@ -14,4 +16,8 @@ interface ListService {
 
     @POST("lists")
     fun createList(@Body listRequestBody: ListCreationRequestBody): Call<Unit>
+
+    @DELETE("lists/{id}")
+    fun deleteList(@Path("id") id: Int): Call<Unit>
+
 }
