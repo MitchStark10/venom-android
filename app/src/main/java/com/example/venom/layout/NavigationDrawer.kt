@@ -1,9 +1,16 @@
 package com.example.venom.layout
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
@@ -38,11 +45,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.venom.classes.List
 import com.example.venom.classes.Modal
 import com.example.venom.classes.RefreshCounter
+import com.example.venom.classes.ReorderListsBody
 import com.example.venom.classes.SelectedView
 import com.example.venom.classes.Views
 import com.example.venom.components.CenteredLoader
@@ -53,22 +62,41 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun NavigationDrawer(
     content: @Composable() () -> Unit
 ) {
+    val toastContext = LocalContext.current
+    val view = LocalView.current;
+    val lists = remember {
+        mutableStateListOf<List>()
+    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState =
+        rememberReorderableLazyListState(
+            lazyListState = lazyListState
+        ) { from, to ->
+            println("From index" + from.index)
+            println("To index" + to.index)
+            lists.apply {
+                add(to.index, removeAt(from.index))
+            }
+
+            view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+        }
+
     var isSettingsMenuExpanded by remember {
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
-    val lists = remember {
-        mutableStateListOf<List>()
-    }
+
     var isLoading by remember { mutableStateOf(true) }
-    val toastContext = LocalContext.current
 
     fun closeDrawer() {
         scope.launch() {
@@ -146,36 +174,76 @@ fun NavigationDrawer(
                         closeDrawer()
                     }
                 )
+                NavigationDrawerItem(label = {
+                    NavigationDrawerRow(
+                        text = "Add New List",
+                        icon = Icons.Outlined.Add
+                    )
+                },
+                    selected = false,
+                    onClick = { SelectedView.openModal = Modal.LIST_MODAL }
+                )
                 Divider()
-                for (list in lists) {
-                    NavigationDrawerItem(
-                        label = {
-                            NavigationDrawerRow(
-                                text = list.listName,
-                                icon = Icons.Outlined.CheckCircle
+
+                LazyColumn(state = lazyListState, modifier = Modifier.fillMaxHeight()) {
+                    items(lists, key = { it.id }) { list ->
+                        ReorderableItem(
+                            state = reorderableLazyListState,
+                            key = list.id
+                        ) {
+                            NavigationDrawerItem(
+                                label = {
+                                    NavigationDrawerRow(
+                                        text = list.listName,
+                                        icon = Icons.Outlined.CheckCircle
+                                    )
+                                },
+                                selected = SelectedView.selectedView == Views.LIST && SelectedView.selectedList == list,
+                                onClick = {
+                                    SelectedView.selectedView = Views.LIST
+                                    SelectedView.selectedList = list
+                                    closeDrawer()
+                                },
+                                modifier = Modifier.longPressDraggableHandle(
+                                    onDragStarted = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                    },
+                                    onDragStopped = {
+                                        view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+
+                                        val listService = RetrofitBuilder.getRetrofit()
+                                            .create(ListService::class.java);
+
+                                        listService.reorderLists(ReorderListsBody(ArrayList(lists)))
+                                            .enqueue(object : Callback<Unit> {
+                                                override fun onFailure(
+                                                    call: Call<Unit>,
+                                                    t: Throwable
+                                                ) {
+                                                    Toast.makeText(
+                                                        toastContext,
+                                                        "Unable to save reordered lists",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+
+                                                override fun onResponse(
+                                                    call: Call<Unit>,
+                                                    response: Response<Unit>
+                                                ) {
+                                                    RefreshCounter.refreshListCount++
+                                                }
+                                            })
+                                    },
+                                )
                             )
-                        },
-                        selected = SelectedView.selectedView == Views.LIST && SelectedView.selectedList == list,
-                        onClick = {
-                            SelectedView.selectedView = Views.LIST
-                            SelectedView.selectedList = list
-                            closeDrawer()
-                        })
+                        }
+
+                    }
                 }
 
                 if (isLoading) {
                     CenteredLoader()
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
-                    NavigationDrawerItem(label = {
-                        NavigationDrawerRow(
-                            text = "Add New List",
-                            icon = Icons.Outlined.Add
-                        )
-                    },
-                        selected = false,
-                        onClick = { SelectedView.openModal = Modal.LIST_MODAL }
-                    )
                 }
             }
         }

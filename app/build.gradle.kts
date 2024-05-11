@@ -72,4 +72,5 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.compose.material.dialogs.datetime)
+    implementation(libs.sh.reorderable)
 }

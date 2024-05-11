@@ -2,11 +2,13 @@ package com.example.venom.services
 
 import com.example.venom.classes.List
 import com.example.venom.classes.ListCreationRequestBody
+import com.example.venom.classes.ReorderListsBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ListService {
@@ -20,4 +22,6 @@ interface ListService {
     @DELETE("lists/{id}")
     fun deleteList(@Path("id") id: Int): Call<Unit>
 
+    @PUT("lists/reorder")
+    fun reorderLists(@Body reorderListsBody: ReorderListsBody): Call<Unit>
 }

@@ -10,3 +10,7 @@ data class List(
 data class ListCreationRequestBody(
     val listName: String
 )
+
+data class ReorderListsBody(
+    val lists: ArrayList<List>
+)
