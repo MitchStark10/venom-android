@@ -82,8 +82,6 @@ fun NavigationDrawer(
         rememberReorderableLazyListState(
             lazyListState = lazyListState
         ) { from, to ->
-            println("From index" + from.index)
-            println("To index" + to.index)
             lists.apply {
                 add(to.index, removeAt(from.index))
             }
