@@ -68,6 +68,7 @@ fun PageWithGroupedTasks(
     }
 
     LaunchedEffect(key1 = tasks) {
+        listColumnItems.clear()
         val groupedTasks = tasks.sortedBy { it.dueDate }
             .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list.listName }
 
