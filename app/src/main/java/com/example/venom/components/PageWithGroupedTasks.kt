@@ -1,10 +1,14 @@
 package com.example.venom.components
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.text.format.DateUtils
+import android.view.HapticFeedbackConstants
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -23,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +47,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("SimpleDateFormat")
 @Composable
@@ -51,21 +57,25 @@ fun PageWithGroupedTasks(
     showDeleteButton: Boolean = false,
     showListNameInTask: Boolean = false,
 ) {
+    val view = LocalView.current;
     val toastContext = LocalContext.current
     val lazyListState = rememberLazyListState()
-    val reorderableLazyListState =
-        rememberReorderableLazyListState(
-            lazyListState = lazyListState
-        ) { from, to ->
-            println("from: " + from)
-            println("to: " + to)
-        }
+
     var isProcessingDeleteTasks by remember {
         mutableStateOf(false)
     }
     val listColumnItems = remember {
         mutableStateListOf<ListColumnItem>()
     }
+    val reorderableLazyListState =
+        rememberReorderableLazyListState(
+            lazyListState = lazyListState
+        ) { from, to ->
+            listColumnItems.apply {
+                add(to.index, removeAt(from.index))
+                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+            }
+        }
 
     LaunchedEffect(key1 = tasks) {
         listColumnItems.clear()
@@ -118,55 +128,65 @@ fun PageWithGroupedTasks(
             items(listColumnItems, key = { it.title ?: it.task!!.id }) { listColumnItem ->
                 ReorderableItem(
                     state = reorderableLazyListState,
-                    key = { listColumnItem.title ?: listColumnItem.task!!.id },
+                    key = listColumnItem.title ?: listColumnItem.task!!.id,
                     enabled = listColumnItem.title.isNullOrEmpty()
                 ) {
-                    if (!listColumnItem.title.isNullOrEmpty()) {
-                        Column {
-                            Text(
-                                text = listColumnItem.title,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold
+                    Row(modifier = Modifier.longPressDraggableHandle(
+                        onDragStarted = {
+                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                        },
+                        onDragStopped = {
+                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                        }
+                    )) {
+                        if (!listColumnItem.title.isNullOrEmpty()) {
+                            Column {
+                                Text(
+                                    text = listColumnItem.title,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Divider()
+                                Spacer(modifier = Modifier.size(10.dp))
+                            }
+                        } else if (listColumnItem.task != null) {
+                            var isCompleted by remember { mutableStateOf(listColumnItem.task.isCompleted) }
+                            fun handleTaskCompletion(updatedIsCompleted: Boolean) {
+                                isCompleted = updatedIsCompleted
+                                listColumnItem.task.isCompleted = updatedIsCompleted
+                                val taskApi =
+                                    RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+                                taskApi.updateTask(listColumnItem.task.id, listColumnItem.task)
+                                    .enqueue(object : Callback<Unit> {
+                                        override fun onFailure(call: Call<Unit>, t: Throwable) {
+                                            Toast.makeText(
+                                                toastContext,
+                                                "Unable to mark task as completed",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                                .show()
+                                        }
+
+                                        override fun onResponse(
+                                            call: Call<Unit>,
+                                            response: Response<Unit>
+                                        ) {
+                                            RefreshCounter.refreshListCount++
+                                            isCompleted = false
+                                        }
+                                    })
+                            }
+
+                            TaskCheckbox(
+                                checked = isCompleted,
+                                onCheckedChange = { handleTaskCompletion(it) },
+                                label = listColumnItem.task.taskName,
+                                task = listColumnItem.task,
+                                showListName = showListNameInTask
                             )
-                            Divider()
-                            Spacer(modifier = Modifier.size(10.dp))
                         }
-                    } else if (listColumnItem.task != null) {
-                        var isCompleted by remember { mutableStateOf(listColumnItem.task.isCompleted) }
-                        fun handleTaskCompletion(updatedIsCompleted: Boolean) {
-                            isCompleted = updatedIsCompleted
-                            listColumnItem.task.isCompleted = updatedIsCompleted
-                            val taskApi =
-                                RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-                            taskApi.updateTask(listColumnItem.task.id, listColumnItem.task)
-                                .enqueue(object : Callback<Unit> {
-                                    override fun onFailure(call: Call<Unit>, t: Throwable) {
-                                        Toast.makeText(
-                                            toastContext,
-                                            "Unable to mark task as completed",
-                                            Toast.LENGTH_SHORT
-                                        )
-                                            .show()
-                                    }
-
-                                    override fun onResponse(
-                                        call: Call<Unit>,
-                                        response: Response<Unit>
-                                    ) {
-                                        RefreshCounter.refreshListCount++
-                                        isCompleted = false
-                                    }
-                                })
-                        }
-
-                        TaskCheckbox(
-                            checked = isCompleted,
-                            onCheckedChange = { handleTaskCompletion(it) },
-                            label = listColumnItem.task.taskName,
-                            task = listColumnItem.task,
-                            showListName = showListNameInTask
-                        )
                     }
+
                 }
             }
         }
