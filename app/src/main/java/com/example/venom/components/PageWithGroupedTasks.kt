@@ -35,6 +35,8 @@ import com.example.venom.classes.GroupBy
 import com.example.venom.classes.ListColumnItem
 import com.example.venom.classes.RefreshCounter
 import com.example.venom.classes.Task
+import com.example.venom.classes.TaskReorderBody
+import com.example.venom.classes.TaskReorderItem
 import com.example.venom.services.RetrofitBuilder
 import com.example.venom.services.TaskService
 import com.example.venom.utils.getDateFromDateString
@@ -56,6 +58,7 @@ fun PageWithGroupedTasks(
     groupBy: GroupBy,
     showDeleteButton: Boolean = false,
     showListNameInTask: Boolean = false,
+    enableReorder: Boolean = false
 ) {
     val view = LocalView.current;
     val toastContext = LocalContext.current
@@ -73,6 +76,37 @@ fun PageWithGroupedTasks(
         ) { from, to ->
             listColumnItems.apply {
                 add(to.index, removeAt(from.index))
+
+                var neighboringTask: ListColumnItem? = null;
+
+                if (to.index > 0) {
+                    println("Checking before item")
+                    val neighborItemAbove = get(to.index - 1)
+                    if (neighborItemAbove.task != null) {
+                        println("using before item")
+                        neighboringTask = neighborItemAbove
+                    }
+                }
+
+                if (neighboringTask == null && to.index < size - 1) {
+                    println("checking after item")
+                    val neighborItemBelow = get(to.index + 1)
+                    if (neighborItemBelow.task != null) {
+                        println("using after item")
+                        neighboringTask = neighborItemBelow
+                    }
+                }
+
+                val itemToUpdate = get(to.index)
+                if (itemToUpdate.task != null) {
+                    itemToUpdate.task.listViewOrder = to.index
+
+                    if (neighboringTask?.task != null) {
+                        println("Updating due date")
+                        itemToUpdate.task.dueDate = neighboringTask.task!!.dueDate
+                    }
+                }
+
                 view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
             }
         }
@@ -129,16 +163,62 @@ fun PageWithGroupedTasks(
                 ReorderableItem(
                     state = reorderableLazyListState,
                     key = listColumnItem.title ?: listColumnItem.task!!.id,
-                    enabled = listColumnItem.title.isNullOrEmpty()
+                    enabled = enableReorder && listColumnItem.title.isNullOrEmpty()
                 ) {
-                    Row(modifier = Modifier.longPressDraggableHandle(
-                        onDragStarted = {
-                            view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
-                        },
-                        onDragStopped = {
-                            view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
-                        }
-                    )) {
+                    Row(
+                        modifier = Modifier.longPressDraggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+
+                                val tasksInListColumnItems =
+                                    listColumnItems.filter { it.task != null }
+                                        .mapIndexed { index, taskItem ->
+                                            TaskReorderItem(
+                                                id = taskItem.task!!.id,
+                                                fieldToUpdate = "listViewOrder",
+                                                newOrder = index,
+                                                newDueDate = taskItem.task.dueDate
+                                            )
+                                        }
+                                val taskReorderBody = TaskReorderBody(tasksInListColumnItems)
+
+                                val taskService =
+                                    RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+                                taskService.reorderTasks(taskReorderBody)
+                                    .enqueue(object : Callback<Unit> {
+                                        override fun onResponse(
+                                            call: Call<Unit>,
+                                            response: Response<Unit>
+                                        ) {
+                                            if (response.isSuccessful) {
+                                                RefreshCounter.refreshListCount++
+                                                return;
+                                            }
+                                            println("Unsuccessful reorder response: " + response.body())
+                                            Toast.makeText(
+                                                toastContext,
+                                                "Unable to save reordered items.",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                                .show()
+                                        }
+
+                                        override fun onFailure(call: Call<Unit>, t: Throwable) {
+                                            Toast.makeText(
+                                                toastContext,
+                                                "Unable to save reordered items.",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                                .show()
+                                        }
+                                    })
+                            },
+                            enabled = enableReorder && listColumnItem.title.isNullOrEmpty()
+                        )
+                    ) {
                         if (!listColumnItem.title.isNullOrEmpty()) {
                             Column {
                                 Text(
@@ -207,7 +287,7 @@ fun PageWithGroupedTasks(
                         }
                     })
                 },
-                enabled = !isProcessingDeleteTasks
+                enabled = enableReorder && !isProcessingDeleteTasks
             ) {
                 Text(text = if (isProcessingDeleteTasks) "Processing..." else "Delete All Tasks")
             }

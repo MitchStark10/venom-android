@@ -2,6 +2,7 @@ package com.example.venom.services
 
 import com.example.venom.classes.CreateTaskRequestBody
 import com.example.venom.classes.Task
+import com.example.venom.classes.TaskReorderBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -30,4 +31,7 @@ interface TaskService {
 
     @GET("/tasks/upcoming")
     fun getUpcomingTasks(@Query("today") today: String?): Call<ArrayList<Task>>
+
+    @PUT("/tasks/reorder")
+    fun reorderTasks(@Body reorderTasksBody: TaskReorderBody): Call<Unit>
 }
