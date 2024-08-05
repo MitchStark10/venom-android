@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.venom"
+    namespace = "com.venom.venom"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.venom"
+        applicationId = "com.venom.venom"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
