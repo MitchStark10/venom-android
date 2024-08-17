@@ -17,15 +17,14 @@ import androidx.compose.ui.unit.dp
 import com.venom.venomtasks.ListModal
 import com.venom.venomtasks.TaskModal
 import com.venom.venomtasks.classes.Modal
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Views
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun LayoutRouter() {
     Scaffold ( floatingActionButton = {
-        FloatingActionButton(onClick = { SelectedView.openModal = Modal.TASK_MODAL }) {
+        FloatingActionButton(onClick = { GlobalState.openModal = Modal.TASK_MODAL }) {
             Icon(Icons.Filled.Add, "Add New Task")
         }
     }) {
@@ -34,14 +33,14 @@ fun LayoutRouter() {
                 modifier = Modifier
                     .padding(start = 10.dp, end = 10.dp)
             ) {
-                when (SelectedView.selectedView) {
+                when (GlobalState.selectedView) {
                     Views.TODAY -> TodayView()
                     Views.UPCOMING -> UpcomingView()
                     Views.COMPLETED -> CompletedView()
-                    Views.LIST -> ListView(list = SelectedView.selectedList!!)
+                    Views.LIST -> ListView(list = GlobalState.selectedList!!)
                 }
 
-                when (SelectedView.openModal) {
+                when (GlobalState.openModal) {
                     Modal.TASK_MODAL -> TaskModal()
                     Modal.LIST_MODAL -> ListModal()
                     else -> Unit

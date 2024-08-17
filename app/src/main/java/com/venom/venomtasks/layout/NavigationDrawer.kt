@@ -52,7 +52,7 @@ import com.venom.venomtasks.classes.List
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.ReorderListsBody
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
 import com.venom.venomtasks.services.ListService
@@ -65,7 +65,6 @@ import retrofit2.Response
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun NavigationDrawer(
@@ -73,16 +72,13 @@ fun NavigationDrawer(
 ) {
     val toastContext = LocalContext.current
     val view = LocalView.current;
-    val lists = remember {
-        mutableStateListOf<List>()
-    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState =
         rememberReorderableLazyListState(
             lazyListState = lazyListState
         ) { from, to ->
-            lists.apply {
+            GlobalState.lists.apply {
                 add(to.index, removeAt(from.index))
             }
 
@@ -122,15 +118,15 @@ fun NavigationDrawer(
                 val listsResponseBody = response.body()
                 if (response.isSuccessful && !listsResponseBody.isNullOrEmpty()) {
                     println("Successfully setting lists: " + listsResponseBody.size)
-                    lists.clear()
-                    lists.addAll(listsResponseBody)
+                    GlobalState.lists.clear()
+                    GlobalState.lists.addAll(listsResponseBody)
 
-                    if (SelectedView.selectedList != null) {
+                    if (GlobalState.selectedList != null) {
 
                         val updatedList =
-                            listsResponseBody.find { it.id == SelectedView.selectedList!!.id }
+                            listsResponseBody.find { it.id == GlobalState.selectedList!!.id }
 
-                        SelectedView.selectedList = updatedList
+                        GlobalState.selectedList = updatedList
                     }
                 }
                 isLoading = false
@@ -146,9 +142,10 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
                     },
-                    selected = SelectedView.selectedView == Views.TODAY,
+                    selected = GlobalState.selectedView == Views.TODAY,
                     onClick = {
-                        SelectedView.selectedView = Views.TODAY
+                        GlobalState.selectedView = Views.TODAY
+                        GlobalState.selectedList = null;
                         closeDrawer()
                     }
                 )
@@ -156,9 +153,10 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Upcoming", icon = Icons.Filled.ArrowForward)
                     },
-                    selected = SelectedView.selectedView == Views.UPCOMING,
+                    selected = GlobalState.selectedView == Views.UPCOMING,
                     onClick = {
-                        SelectedView.selectedView = Views.UPCOMING
+                        GlobalState.selectedView = Views.UPCOMING
+                        GlobalState.selectedList = null;
                         closeDrawer()
                     }
                 )
@@ -166,9 +164,10 @@ fun NavigationDrawer(
                     label = {
                         NavigationDrawerRow(text = "Completed", icon = Icons.Filled.Done)
                     },
-                    selected = SelectedView.selectedView == Views.COMPLETED,
+                    selected = GlobalState.selectedView == Views.COMPLETED,
                     onClick = {
-                        SelectedView.selectedView = Views.COMPLETED
+                        GlobalState.selectedView = Views.COMPLETED
+                        GlobalState.selectedList = null;
                         closeDrawer()
                     }
                 )
@@ -179,12 +178,12 @@ fun NavigationDrawer(
                     )
                 },
                     selected = false,
-                    onClick = { SelectedView.openModal = Modal.LIST_MODAL }
+                    onClick = { GlobalState.openModal = Modal.LIST_MODAL }
                 )
                 Divider()
 
                 LazyColumn(state = lazyListState, modifier = Modifier.fillMaxHeight()) {
-                    items(lists, key = { it.id }) { list ->
+                    items(GlobalState.lists, key = { it.id }) { list ->
                         ReorderableItem(
                             state = reorderableLazyListState,
                             key = list.id
@@ -196,10 +195,10 @@ fun NavigationDrawer(
                                         icon = Icons.Outlined.CheckCircle
                                     )
                                 },
-                                selected = SelectedView.selectedView == Views.LIST && SelectedView.selectedList == list,
+                                selected = GlobalState.selectedView == Views.LIST && GlobalState.selectedList == list,
                                 onClick = {
-                                    SelectedView.selectedView = Views.LIST
-                                    SelectedView.selectedList = list
+                                    GlobalState.selectedView = Views.LIST
+                                    GlobalState.selectedList = list
                                     closeDrawer()
                                 },
                                 modifier = Modifier.longPressDraggableHandle(
@@ -212,7 +211,7 @@ fun NavigationDrawer(
                                         val listService = RetrofitBuilder.getRetrofit()
                                             .create(ListService::class.java);
 
-                                        listService.reorderLists(ReorderListsBody(ArrayList(lists)))
+                                        listService.reorderLists(ReorderListsBody(ArrayList(GlobalState.lists)))
                                             .enqueue(object : Callback<Unit> {
                                                 override fun onFailure(
                                                     call: Call<Unit>,
@@ -272,7 +271,7 @@ fun NavigationDrawer(
                         }
                     },
                     actions = {
-                        if (SelectedView.selectedView == Views.LIST) {
+                        if (GlobalState.selectedView == Views.LIST) {
                             IconButton(onClick = { isSettingsMenuExpanded = true }) {
                                 Icon(
                                     Icons.Filled.Settings,
@@ -289,7 +288,7 @@ fun NavigationDrawer(
                                 }, onClick = {
                                     val listService = RetrofitBuilder.getRetrofit()
                                         .create(ListService::class.java);
-                                    listService.deleteList(SelectedView.selectedList!!.id)
+                                    listService.deleteList(GlobalState.selectedList!!.id)
                                         .enqueue(object : Callback<Unit> {
                                             override fun onFailure(call: Call<Unit>, t: Throwable) {
                                                 Toast.makeText(
@@ -304,8 +303,8 @@ fun NavigationDrawer(
                                                 response: Response<Unit>
                                             ) {
                                                 isSettingsMenuExpanded = false;
-                                                SelectedView.selectedView = Views.TODAY;
-                                                SelectedView.selectedList = null;
+                                                GlobalState.selectedView = Views.TODAY;
+                                                GlobalState.selectedList = null;
                                                 RefreshCounter.refreshListCount++;
                                             }
                                         })

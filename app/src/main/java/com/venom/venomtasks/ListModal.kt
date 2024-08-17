@@ -32,7 +32,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.venom.venomtasks.classes.ListCreationRequestBody
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import retrofit2.Call
@@ -72,14 +72,14 @@ fun ListModal() {
 
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                 RefreshCounter.refreshListCount++
-                SelectedView.openModal = Modal.NONE
+                GlobalState.openModal = Modal.NONE
             }
         })
     }
 
     Dialog(
         onDismissRequest = {
-            SelectedView.openModal = Modal.NONE; SelectedView.selectedTask = null
+            GlobalState.openModal = Modal.NONE; GlobalState.selectedTask = null
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {

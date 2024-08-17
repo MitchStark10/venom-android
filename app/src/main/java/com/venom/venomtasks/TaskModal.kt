@@ -9,12 +9,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +41,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.venom.venomtasks.classes.CreateTaskRequestBody
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.components.CustomDatePicker
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TaskService
@@ -49,19 +55,28 @@ import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskModal() {
-    val initialTaskName = SelectedView.selectedTask?.taskName ?: ""
-    var initialTaskDate: String? = null
+    val initialTaskName = GlobalState.selectedTask?.taskName ?: "";
+    val initialListId =
+        GlobalState.selectedTask?.list?.id ?: GlobalState.selectedList?.id ?: GlobalState.lists[0].id;
+    var initialTaskDate: String? = null;
+    val context = LocalContext.current;
+    var isDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
 
-    if (!SelectedView.selectedTask?.dueDate.isNullOrEmpty()) {
+    if (!GlobalState.selectedTask?.dueDate.isNullOrEmpty()) {
         initialTaskDate =
-            SelectedView.selectedTask!!.dueDate!!.slice(5..6) + "/" +
-                    SelectedView.selectedTask!!.dueDate!!.slice(8..9) + "/" +
-                    SelectedView.selectedTask!!.dueDate!!.slice(0..3)
+            GlobalState.selectedTask!!.dueDate!!.slice(5..6) + "/" +
+                    GlobalState.selectedTask!!.dueDate!!.slice(8..9) + "/" +
+                    GlobalState.selectedTask!!.dueDate!!.slice(0..3)
     }
 
 
     var taskName by remember {
         mutableStateOf(initialTaskName)
+    }
+    var listId by remember {
+        mutableStateOf(initialListId)
     }
     val datePickerState =
         rememberDatePickerState(initialSelectedDateMillis = getDateFromDateString(initialTaskDate)?.time)
@@ -71,7 +86,7 @@ fun TaskModal() {
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        if (SelectedView.selectedTask == null) {
+        if (GlobalState.selectedTask == null) {
             focusRequester.requestFocus()
         }
     }
@@ -106,15 +121,15 @@ fun TaskModal() {
         fun handleApiSuccess() {
             isProcessing = false
             RefreshCounter.refreshListCount++
-            SelectedView.openModal = Modal.NONE
-            SelectedView.selectedTask = null
+            GlobalState.openModal = Modal.NONE
+            GlobalState.selectedTask = null
         }
 
 
-        if (SelectedView.selectedTask != null) {
-            SelectedView.selectedTask!!.taskName = taskName
-            SelectedView.selectedTask!!.dueDate = formattedDateTime
-            taskService.updateTask(SelectedView.selectedTask!!.id, SelectedView.selectedTask!!)
+        if (GlobalState.selectedTask != null) {
+            GlobalState.selectedTask!!.taskName = taskName
+            GlobalState.selectedTask!!.dueDate = formattedDateTime
+            taskService.updateTask(GlobalState.selectedTask!!.id, GlobalState.selectedTask!!)
                 .enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {
                         handleApiFailure()
@@ -126,7 +141,7 @@ fun TaskModal() {
                 })
         } else {
             val taskRequestBody =
-                CreateTaskRequestBody(taskName, formattedDateTime, SelectedView.selectedList!!.id)
+                CreateTaskRequestBody(taskName, formattedDateTime, listId!!)
             taskService.createTask(taskRequestBody).enqueue(object : Callback<Unit> {
                 override fun onFailure(call: Call<Unit>, t: Throwable) {
                     handleApiFailure()
@@ -142,7 +157,7 @@ fun TaskModal() {
 
     Dialog(
         onDismissRequest = {
-            SelectedView.openModal = Modal.NONE; SelectedView.selectedTask = null
+            GlobalState.openModal = Modal.NONE; GlobalState.selectedTask = null
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
@@ -153,6 +168,24 @@ fun TaskModal() {
                 .padding(10.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (GlobalState.selectedList == null) {
+                    ExposedDropdownMenuBox(expanded = isDropdownExpanded, onExpandedChange = { isDropdownExpanded = !isDropdownExpanded }) {
+                        TextField(
+                            value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        )
+
+                        ExposedDropdownMenu(expanded = isDropdownExpanded, onDismissRequest = { isDropdownExpanded = false }) {
+                            GlobalState.lists.forEach { list ->
+                                DropdownMenuItem(text = { Text(list.listName) }, onClick = { listId = list.id })
+                            }
+                        }
+                    }
+                }
+
                 OutlinedTextField(
                     value = taskName,
                     onValueChange = { taskName = it },
@@ -167,11 +200,11 @@ fun TaskModal() {
 
                 Button(
                     onClick = { handleSubmitTask() },
-                    enabled = !isProcessing,
+                    enabled = !isProcessing && listId != null,
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
                     var buttonText =
-                        if (SelectedView.selectedTask != null) "Update Task" else "Create Task"
+                        if (GlobalState.selectedTask != null) "Update Task" else "Create Task"
 
                     if (isProcessing) {
                         buttonText = "Processing..."

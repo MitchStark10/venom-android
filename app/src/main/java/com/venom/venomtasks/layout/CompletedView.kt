@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.venom.venomtasks.classes.GroupBy
 import com.venom.venomtasks.classes.RefreshCounter
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
@@ -29,8 +29,8 @@ fun CompletedView() {
     var isFetchingTaskData by remember { mutableStateOf(true) }
     val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
 
-    LaunchedEffect(SelectedView.selectedView, RefreshCounter.refreshListCount) {
-        if (SelectedView.selectedView === Views.COMPLETED) {
+    LaunchedEffect(GlobalState.selectedView, RefreshCounter.refreshListCount) {
+        if (GlobalState.selectedView === Views.COMPLETED) {
             taskService.getCompletedTasks().enqueue(object : Callback<ArrayList<Task>> {
                 override fun onFailure(call: Call<ArrayList<Task>>, t: Throwable) {
                     isFetchingTaskData = false

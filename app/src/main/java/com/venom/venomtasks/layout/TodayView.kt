@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.venom.venomtasks.classes.GroupBy
 import com.venom.venomtasks.classes.RefreshCounter
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
@@ -31,8 +31,8 @@ fun TodayView() {
     }
     var isProcessing by remember { mutableStateOf(true) }
 
-    LaunchedEffect(SelectedView.selectedView, RefreshCounter.refreshListCount) {
-        if (SelectedView.selectedView === Views.TODAY) {
+    LaunchedEffect(GlobalState.selectedView, RefreshCounter.refreshListCount) {
+        if (GlobalState.selectedView === Views.TODAY) {
             val listService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
             listService.getTodaysTasks(
                 getDateStringFromMillis(

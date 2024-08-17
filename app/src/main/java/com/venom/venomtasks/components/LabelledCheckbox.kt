@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.Modal
-import com.venom.venomtasks.classes.SelectedView
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Task
 
 @Composable
@@ -53,8 +53,8 @@ fun TaskCheckbox(
                 text = label,
                 overflow = TextOverflow.Visible,
                 modifier = Modifier.clickable {
-                    SelectedView.selectedTask = task;
-                    SelectedView.openModal = Modal.TASK_MODAL
+                    GlobalState.selectedTask = task;
+                    GlobalState.openModal = Modal.TASK_MODAL
                 }
             )
 
