@@ -20,16 +20,5 @@ import com.venom.venomtasks.components.PageWithGroupedTasks
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListView(list: List) {
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { SelectedView.openModal = Modal.TASK_MODAL }) {
-                Icon(Icons.Filled.Add, "Add New Task")
-            }
-        }
-    ) {
-        Box {
-            PageWithGroupedTasks(tasks = list.tasks, groupBy = GroupBy.DATE, enableReorder = true)
-        }
-    }
+    PageWithGroupedTasks(tasks = list.tasks, groupBy = GroupBy.DATE, enableReorder = true)
 }
