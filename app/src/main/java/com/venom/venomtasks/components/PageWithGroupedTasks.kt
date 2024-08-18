@@ -1,11 +1,9 @@
 package com.venom.venomtasks.components
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.text.format.DateUtils
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,7 +47,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("SimpleDateFormat")
 @Composable
@@ -60,7 +57,7 @@ fun PageWithGroupedTasks(
     showListNameInTask: Boolean = false,
     enableReorder: Boolean = false
 ) {
-    val view = LocalView.current;
+    val view = LocalView.current
     val toastContext = LocalContext.current
     val lazyListState = rememberLazyListState()
 
@@ -77,8 +74,7 @@ fun PageWithGroupedTasks(
             listColumnItems.apply {
                 add(to.index, removeAt(from.index))
 
-                var neighboringTask: ListColumnItem? = null;
-
+                var neighboringTask: ListColumnItem? = null
                 if (to.index > 0) {
                     println("Checking before item")
                     val neighborItemAbove = get(to.index - 1)
@@ -195,7 +191,7 @@ fun PageWithGroupedTasks(
                                         ) {
                                             if (response.isSuccessful) {
                                                 RefreshCounter.refreshListCount++
-                                                return;
+                                                return
                                             }
                                             println("Unsuccessful reorder response: " + response.body())
                                             Toast.makeText(
@@ -282,12 +278,12 @@ fun PageWithGroupedTasks(
                         }
 
                         override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                            RefreshCounter.refreshListCount++;
+                            RefreshCounter.refreshListCount++
                             isProcessingDeleteTasks = false
                         }
                     })
                 },
-                enabled = enableReorder && !isProcessingDeleteTasks
+                enabled = !isProcessingDeleteTasks
             ) {
                 Text(text = if (isProcessingDeleteTasks) "Processing..." else "Delete All Tasks")
             }

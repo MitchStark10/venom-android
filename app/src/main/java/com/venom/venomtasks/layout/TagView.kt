@@ -15,7 +15,7 @@ import com.venom.venomtasks.components.TagPill
 fun TagView() {
     LazyColumn {
         items(GlobalState.tags, key = { it.id }) { tag ->
-            TagPill(tag = tag, onClick = { })
+            TagPill(tag = tag, onClick = { }, allowDeleteTag = true)
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
@@ -193,7 +194,7 @@ fun NavigationDrawer(
                 )
 
                 NavigationDrawerItem(label = {
-                    NavigationDrawerRow(text = "Tags", icon = Icons.Filled.Info)
+                    NavigationDrawerRow(text = "Tags", icon = Icons.Filled.Build)
                 }, selected = GlobalState.selectedView == Views.TAGS, onClick = {
                     GlobalState.selectedView = Views.TAGS;
                     GlobalState.selectedList = null;
