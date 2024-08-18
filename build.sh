@@ -35,9 +35,7 @@ build_bundle() {
   jarsigner -verbose -keystore $KEYSTORE_PATH -storepass $KEY_PASSWORD -keypass $KEY_PASSWORD $UNSIGNED_BUNDLE $KEY_ALIAS
 }
 
-if [[ -v KEY_PASSWORD ]]; then
-  echo "KEY_PASSWORD is set. Proceeding..."
-else
+if [ -z "$KEY_PASSWORD" ]; then
   echo "KEY_PASSWORD is not set"
   exit 1
 fi
