@@ -1,4 +1,4 @@
-package com.venom.venomtasks
+package com.venom.venomtasks.modals
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -9,10 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -43,6 +41,8 @@ import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.components.CustomDatePicker
+import com.venom.venomtasks.components.CustomDropdown
+import com.venom.venomtasks.components.DropdownOption
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TaskService
 import com.venom.venomtasks.utils.getDateFromDateString
@@ -50,6 +50,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,21 +170,10 @@ fun TaskModal() {
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (GlobalState.selectedList == null) {
-                    ExposedDropdownMenuBox(expanded = isDropdownExpanded, onExpandedChange = { isDropdownExpanded = !isDropdownExpanded }) {
-                        TextField(
-                            value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        )
-
-                        ExposedDropdownMenu(expanded = isDropdownExpanded, onDismissRequest = { isDropdownExpanded = false }) {
-                            GlobalState.lists.forEach { list ->
-                                DropdownMenuItem(text = { Text(list.listName) }, onClick = { listId = list.id })
-                            }
-                        }
-                    }
+                    CustomDropdown(value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
+                        dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
+                        onChange = { listId = it.id as Int }
+                    )
                 }
 
                 OutlinedTextField(

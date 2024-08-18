@@ -6,6 +6,11 @@ data class TaskTag (
     val tag: Tag
 )
 
+data class TagCreationRequestBody(
+    var tagName: String,
+    var tagColor: String
+)
+
 data class Tag (
     val id: Int,
     var tagName: String,

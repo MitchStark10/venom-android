@@ -1,4 +1,4 @@
-package com.venom.venomtasks
+package com.venom.venomtasks.modals
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,57 +28,67 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.venom.venomtasks.classes.ListCreationRequestBody
+import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
-import com.venom.venomtasks.classes.GlobalState
-import com.venom.venomtasks.services.ListService
+import com.venom.venomtasks.classes.TagCreationRequestBody
+import com.venom.venomtasks.components.CustomDropdown
+import com.venom.venomtasks.components.DropdownOption
 import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.TagService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-@Composable
-fun ListModal() {
-    val toastContext = LocalContext.current
+val tagColorOptions = arrayListOf(
+    DropdownOption("blue", "Blue"),
+    DropdownOption("orange", "Orange"),
+    DropdownOption("green", "Green"),
+    DropdownOption("red", "Red")
+)
 
-    var listName by remember {
+@Composable
+fun TagModal() {
+    var tagName by remember {
         mutableStateOf("")
+    }
+    var tagColor by remember {
+        mutableStateOf(tagColorOptions.first().id as String)
     }
     var isProcessing by remember {
         mutableStateOf(false)
     }
+    val toastContext = LocalContext.current
+
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-    fun handleSubmitList() {
-        isProcessing = true;
-        val listService = RetrofitBuilder.getRetrofit().create(ListService::class.java);
-        val requestBody = ListCreationRequestBody(listName)
-        listService.createList(requestBody).enqueue(object : Callback<Unit> {
+    fun handleCreateTag() {
+        val tagService = RetrofitBuilder.getRetrofit().create(TagService::class.java);
+        val requestBody = TagCreationRequestBody(tagName, tagColor)
+        tagService.createTags(requestBody).enqueue(object: Callback<Unit> {
             override fun onFailure(call: Call<Unit>, t: Throwable) {
                 isProcessing = false;
                 Toast.makeText(
                     toastContext,
-                    "Unable to mark task as completed",
+                    "Unable to create tag",
                     Toast.LENGTH_SHORT
                 )
                     .show()
             }
 
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                RefreshCounter.refreshListCount++
-                GlobalState.openModal = Modal.NONE
+                if (response.isSuccessful) {
+                    RefreshCounter.refreshListCount++
+                    GlobalState.openModal = Modal.NONE
+                }
             }
         })
     }
 
     Dialog(
         onDismissRequest = {
-            GlobalState.openModal = Modal.NONE; GlobalState.selectedTask = null
+            GlobalState.openModal = Modal.NONE
+            GlobalState.selectedTask = null
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
@@ -91,21 +100,23 @@ fun ListModal() {
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
-                    value = listName,
-                    onValueChange = { listName = it },
-                    label = { Text("List Name") },
+                    value = tagName,
+                    onValueChange = { tagName = it },
+                    label = { Text("Tag Name") },
                     keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
                 )
 
+                CustomDropdown(value = tagColorOptions.find { it.id == tagColor}?.label ?: "", dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
+
                 Button(
-                    onClick = { handleSubmitList() },
-                    enabled = !isProcessing && listName.isNotEmpty(),
+                    onClick = { handleCreateTag() },
+                    enabled = !isProcessing && tagName.isNotEmpty(),
                     modifier = Modifier.align(alignment = Alignment.End)
                 ) {
-                    var buttonText = "Create List"
+                    var buttonText = "Create Tag"
 
                     if (isProcessing) {
                         buttonText = "Processing..."
