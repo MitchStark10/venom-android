@@ -17,8 +17,30 @@ increment_version_code() {
 
 # Function to build the Android app bundle
 build_bundle() {
+  PROJECT_PATH=~/projects/venom-android/;
+
+  # Build the app bundle
   ./gradlew bundleRelease
+
+  # Path to your keystore
+  KEYSTORE_PATH=/Users/mitchstark/venomkeystore
+
+  # Key alias
+  KEY_ALIAS=venomkeystore
+
+  # Path to the unsigned bundle
+  UNSIGNED_BUNDLE=$PROJECT_PATH/app/build/outputs/bundle/release/app-release.aab
+
+  # Sign the app bundle
+  jarsigner -verbose -keystore $KEYSTORE_PATH -storepass $KEY_PASSWORD -keypass $KEY_PASSWORD $UNSIGNED_BUNDLE $KEY_ALIAS
 }
+
+if [[ -v KEY_PASSWORD ]]; then
+  echo "KEY_PASSWORD is set. Proceeding..."
+else
+  echo "KEY_PASSWORD is not set"
+  exit 1
+fi
 
 # Main script logic
 cd ~/projects/venom-android/ || exit;
