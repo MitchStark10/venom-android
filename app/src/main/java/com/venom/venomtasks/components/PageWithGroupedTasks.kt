@@ -26,9 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.GroupBy
 import com.venom.venomtasks.classes.ListColumnItem
 import com.venom.venomtasks.classes.RefreshCounter
@@ -217,11 +215,7 @@ fun PageWithGroupedTasks(
                     ) {
                         if (!listColumnItem.title.isNullOrEmpty()) {
                             Column {
-                                Text(
-                                    text = listColumnItem.title,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                SectionHeader(text = listColumnItem.title)
                                 Divider()
                                 Spacer(modifier = Modifier.size(10.dp))
                             }

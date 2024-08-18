@@ -9,6 +9,6 @@ fun getTitleText(): String {
         Views.COMPLETED -> "Completed"
         Views.UPCOMING -> "Upcoming"
         Views.LIST -> GlobalState.selectedList?.listName ?: "Venom"
-        else -> "Venom"
+        Views.TAGS -> "Tags"
     }
 }
