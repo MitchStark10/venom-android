@@ -7,7 +7,9 @@ data class Task(
     var listViewOrder: Int?,
     var timeViewOrder: Int?,
     var isCompleted: Boolean,
-    val list: List
+    val list: List,
+    val taskTag: ArrayList<TaskTag>,
+    val tagIds: ArrayList<Int>
 )
 
 data class CreateTaskRequestBody(

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
@@ -53,10 +54,12 @@ import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.ReorderListsBody
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.Tag
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
 import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.TagService
 import com.venom.venomtasks.utils.getTitleText
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -101,7 +104,6 @@ fun NavigationDrawer(
     }
 
     LaunchedEffect(RefreshCounter.refreshListCount) {
-        println("Initializing list service")
         val listService: ListService =
             RetrofitBuilder.getRetrofit().create(ListService::class.java)
         listService.getLists().enqueue(object : Callback<ArrayList<List>> {
@@ -130,6 +132,24 @@ fun NavigationDrawer(
                     }
                 }
                 isLoading = false
+            }
+        })
+
+        val tagService: TagService = RetrofitBuilder.getRetrofit().create(TagService::class.java);
+        tagService.getTags().enqueue(object: Callback<ArrayList<Tag>> {
+            override fun onFailure(call: Call<ArrayList<Tag>>, t: Throwable) {
+                println("Received error when attempting to retrieve tags: $t")
+            }
+
+            override fun onResponse(
+                call: Call<ArrayList<Tag>>,
+                response: Response<ArrayList<Tag>>
+            ) {
+                val tags = response.body()
+                if (response.isSuccessful && !tags.isNullOrEmpty()) {
+                    GlobalState.tags.clear();
+                    GlobalState.tags.addAll(tags)
+                }
             }
         })
     }
@@ -171,6 +191,15 @@ fun NavigationDrawer(
                         closeDrawer()
                     }
                 )
+
+                NavigationDrawerItem(label = {
+                    NavigationDrawerRow(text = "Tags", icon = Icons.Filled.Info)
+                }, selected = GlobalState.selectedView == Views.TAGS, onClick = {
+                    GlobalState.selectedView = Views.TAGS;
+                    GlobalState.selectedList = null;
+                    closeDrawer()
+                })
+
                 NavigationDrawerItem(label = {
                     NavigationDrawerRow(
                         text = "Add New List",

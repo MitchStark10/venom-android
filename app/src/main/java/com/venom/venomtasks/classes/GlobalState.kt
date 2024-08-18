@@ -16,7 +16,8 @@ enum class Views {
     TODAY,
     UPCOMING,
     COMPLETED,
-    LIST
+    LIST,
+    TAGS
 }
 
 class GlobalState {
@@ -26,5 +27,6 @@ class GlobalState {
         var openModal: Modal by mutableStateOf(Modal.NONE)
         var selectedTask: Task? by mutableStateOf(null)
         val lists = mutableStateListOf<List>()
+        val tags = mutableStateListOf<Tag>()
     }
 }

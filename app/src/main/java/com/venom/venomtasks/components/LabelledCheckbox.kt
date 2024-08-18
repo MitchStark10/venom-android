@@ -33,6 +33,12 @@ fun TaskCheckbox(
     task: Task,
     showListName: Boolean = false
 ) {
+
+    fun editTask() {
+        GlobalState.selectedTask = task;
+        GlobalState.openModal = Modal.TASK_MODAL
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -53,8 +59,7 @@ fun TaskCheckbox(
                 text = label,
                 overflow = TextOverflow.Visible,
                 modifier = Modifier.clickable {
-                    GlobalState.selectedTask = task;
-                    GlobalState.openModal = Modal.TASK_MODAL
+                    editTask()
                 }
             )
 
@@ -65,6 +70,12 @@ fun TaskCheckbox(
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.SemiBold
                 )
+            }
+
+            Row {
+                task.taskTag.forEach { taskTag ->
+                    TagPill(tag = taskTag.tag, onClick = { editTask() })
+                }
             }
         }
 
