@@ -5,13 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -34,6 +38,7 @@ import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.TagCreationRequestBody
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
+import com.venom.venomtasks.components.SectionHeader
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TagService
 import retrofit2.Call
@@ -90,39 +95,42 @@ fun TagModal() {
             GlobalState.openModal = Modal.NONE
             GlobalState.selectedTask = null
         },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
-                .padding(10.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = tagName,
-                    onValueChange = { tagName = it },
-                    label = { Text("Tag Name") },
-                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .fillMaxWidth()
-                )
+        Surface(shape = RoundedCornerShape(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
+                    .padding(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionHeader(text = "Create Tag")
+                    OutlinedTextField(
+                        value = tagName,
+                        onValueChange = { tagName = it },
+                        label = { Text("Tag Name") },
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth()
+                    )
 
-                CustomDropdown(value = tagColorOptions.find { it.id == tagColor}?.label ?: "", dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
+                    CustomDropdown(value = tagColorOptions.find { it.id == tagColor}?.label ?: "", dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
 
-                Button(
-                    onClick = { handleCreateTag() },
-                    enabled = !isProcessing && tagName.isNotEmpty(),
-                    modifier = Modifier.align(alignment = Alignment.End)
-                ) {
-                    var buttonText = "Create Tag"
+                    Button(
+                        onClick = { handleCreateTag() },
+                        enabled = !isProcessing && tagName.isNotEmpty(),
+                        modifier = Modifier.align(alignment = Alignment.End)
+                    ) {
+                        var buttonText = "Create Tag"
 
-                    if (isProcessing) {
-                        buttonText = "Processing..."
+                        if (isProcessing) {
+                            buttonText = "Processing..."
+                        }
+
+                        Text(buttonText)
                     }
-
-                    Text(buttonText)
                 }
             }
         }

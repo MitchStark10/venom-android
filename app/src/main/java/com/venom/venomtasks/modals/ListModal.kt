@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +35,7 @@ import com.venom.venomtasks.classes.ListCreationRequestBody
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.components.SectionHeader
 import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import retrofit2.Call
@@ -83,35 +86,38 @@ fun ListModal() {
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
-                .padding(10.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(
-                    value = listName,
-                    onValueChange = { listName = it },
-                    label = { Text("List Name") },
-                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .fillMaxWidth()
-                )
+        Surface( shape = RoundedCornerShape(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
+                    .padding(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionHeader(text = "Create List")
+                    OutlinedTextField(
+                        value = listName,
+                        onValueChange = { listName = it },
+                        label = { Text("List Name") },
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth()
+                    )
 
-                Button(
-                    onClick = { handleSubmitList() },
-                    enabled = !isProcessing && listName.isNotEmpty(),
-                    modifier = Modifier.align(alignment = Alignment.End)
-                ) {
-                    var buttonText = "Create List"
+                    Button(
+                        onClick = { handleSubmitList() },
+                        enabled = !isProcessing && listName.isNotEmpty(),
+                        modifier = Modifier.align(alignment = Alignment.End)
+                    ) {
+                        var buttonText = "Create List"
 
-                    if (isProcessing) {
-                        buttonText = "Processing..."
+                        if (isProcessing) {
+                            buttonText = "Processing..."
+                        }
+
+                        Text(buttonText)
                     }
-
-                    Text(buttonText)
                 }
             }
         }

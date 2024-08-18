@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -17,6 +18,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
@@ -43,6 +45,7 @@ import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.components.CustomDatePicker
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
+import com.venom.venomtasks.components.SectionHeader
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TaskService
 import com.venom.venomtasks.utils.getDateFromDateString
@@ -162,45 +165,48 @@ fun TaskModal() {
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
-                .padding(10.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (GlobalState.selectedList == null) {
-                    CustomDropdown(value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
-                        dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
-                        onChange = { listId = it.id as Int }
-                    )
-                }
-
-                OutlinedTextField(
-                    value = taskName,
-                    onValueChange = { taskName = it },
-                    label = { Text("Task Name") },
-                    keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                        .fillMaxWidth()
-                )
-
-                CustomDatePicker(datePickerState = datePickerState)
-
-                Button(
-                    onClick = { handleSubmitTask() },
-                    enabled = !isProcessing && listId != null,
-                    modifier = Modifier.align(alignment = Alignment.End)
-                ) {
-                    var buttonText =
-                        if (GlobalState.selectedTask != null) "Update Task" else "Create Task"
-
-                    if (isProcessing) {
-                        buttonText = "Processing..."
+        Surface(shape = RoundedCornerShape(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .width(LocalConfiguration.current.screenWidthDp.dp - 40.dp)
+                    .padding(16.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SectionHeader(text = if (GlobalState.selectedTask == null)  "Create Task" else "Edit Task")
+                    if (GlobalState.selectedList == null) {
+                        CustomDropdown(value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
+                            dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
+                            onChange = { listId = it.id as Int }
+                        )
                     }
 
-                    Text(buttonText)
+                    OutlinedTextField(
+                        value = taskName,
+                        onValueChange = { taskName = it },
+                        label = { Text("Task Name") },
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences),
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth()
+                    )
+
+                    CustomDatePicker(datePickerState = datePickerState)
+
+                    Button(
+                        onClick = { handleSubmitTask() },
+                        enabled = !isProcessing && listId != null,
+                        modifier = Modifier.align(alignment = Alignment.End)
+                    ) {
+                        var buttonText =
+                            if (GlobalState.selectedTask != null) "Update Task" else "Create Task"
+
+                        if (isProcessing) {
+                            buttonText = "Processing..."
+                        }
+
+                        Text(buttonText)
+                    }
                 }
             }
         }
