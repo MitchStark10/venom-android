@@ -27,6 +27,7 @@ class GlobalState {
         var selectedList: List? by mutableStateOf(null)
         var openModal: Modal by mutableStateOf(Modal.NONE)
         var selectedTask: Task? by mutableStateOf(null)
+        var selectedTag: Tag? by mutableStateOf(null)
         val lists = mutableStateListOf<List>()
         val tags = mutableStateListOf<Tag>()
     }

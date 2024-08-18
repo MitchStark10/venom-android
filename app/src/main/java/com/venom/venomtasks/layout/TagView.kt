@@ -9,13 +9,17 @@ import com.venom.venomtasks.classes.GlobalState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.components.TagPill
 
 @Composable
 fun TagView() {
     LazyColumn(modifier = Modifier.padding(top = 16.dp, start = 8.dp)) {
         items(GlobalState.tags, key = { it.id }) { tag ->
-            TagPill(tag = tag, onClick = { }, allowDeleteTag = true)
+            TagPill(tag = tag, onClick = {
+                GlobalState.selectedTag = tag
+                GlobalState.openModal = Modal.TAG_MODAL
+            }, allowDeleteTag = true)
             Spacer(modifier = Modifier.size(16.dp))
         }
     }

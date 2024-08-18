@@ -1,5 +1,6 @@
 package com.venom.venomtasks.modals
 
+import android.provider.Settings.Global
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,10 +56,10 @@ val tagColorOptions = arrayListOf(
 @Composable
 fun TagModal() {
     var tagName by remember {
-        mutableStateOf("")
+        mutableStateOf(GlobalState.selectedTag?.tagName ?: "")
     }
     var tagColor by remember {
-        mutableStateOf(tagColorOptions.first().id as String)
+        mutableStateOf( GlobalState.selectedTag?.tagColor ?: tagColorOptions.first().id as String)
     }
     var isProcessing by remember {
         mutableStateOf(false)
@@ -67,27 +68,56 @@ fun TagModal() {
 
     val focusRequester = remember { FocusRequester() }
 
-    fun handleCreateTag() {
-        val tagService = RetrofitBuilder.getRetrofit().create(TagService::class.java);
-        val requestBody = TagCreationRequestBody(tagName, tagColor)
-        tagService.createTags(requestBody).enqueue(object: Callback<Unit> {
-            override fun onFailure(call: Call<Unit>, t: Throwable) {
-                isProcessing = false;
-                Toast.makeText(
-                    toastContext,
-                    "Unable to create tag",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
+    val contextSpecificHeader = if (GlobalState.selectedTag == null) "Create Tag" else "Update Tag"
 
-            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                if (response.isSuccessful) {
-                    RefreshCounter.refreshListCount++
-                    GlobalState.openModal = Modal.NONE
-                }
+    fun handleCreateTag() {
+
+        fun onFailure() {
+            isProcessing = false;
+            Toast.makeText(
+                toastContext,
+                "Unable to create tag",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+
+        fun onSuccess(response: Response<Unit>) {
+            if (response.isSuccessful) {
+                RefreshCounter.refreshListCount++
+                GlobalState.openModal = Modal.NONE
+                GlobalState.selectedTag = null;
             }
-        })
+        }
+
+        val tagService = RetrofitBuilder.getRetrofit().create(TagService::class.java);
+
+        if (GlobalState.selectedTag != null) {
+            GlobalState.selectedTag!!.tagName = tagName
+            GlobalState.selectedTag!!.tagColor = tagColor
+            tagService.updateTag(GlobalState.selectedTag!!.id, GlobalState.selectedTag!!).enqueue(object: Callback<Unit> {
+                override fun onFailure(call: Call<Unit>, t: Throwable) {
+                    onFailure()
+                }
+
+                override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                    onSuccess(response)
+                }
+            })
+
+        } else {
+            val requestBody = TagCreationRequestBody(tagName, tagColor)
+            tagService.createTags(requestBody).enqueue(object: Callback<Unit> {
+                override fun onFailure(call: Call<Unit>, t: Throwable) {
+                    onFailure()
+                }
+
+                override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                    onSuccess(response)
+                }
+            })
+        }
+
     }
 
     Dialog(
@@ -105,7 +135,7 @@ fun TagModal() {
                     .padding(16.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SectionHeader(text = "Create Tag")
+                    SectionHeader(text = contextSpecificHeader)
                     OutlinedTextField(
                         value = tagName,
                         onValueChange = { tagName = it },
@@ -123,7 +153,7 @@ fun TagModal() {
                         enabled = !isProcessing && tagName.isNotEmpty(),
                         modifier = Modifier.align(alignment = Alignment.End)
                     ) {
-                        var buttonText = "Create Tag"
+                        var buttonText = contextSpecificHeader
 
                         if (isProcessing) {
                             buttonText = "Processing..."
