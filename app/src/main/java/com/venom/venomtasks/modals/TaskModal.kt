@@ -25,9 +25,11 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -53,15 +55,15 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.TimeZone
+import kotlin.collections.ArrayList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskModal() {
-    val initialTaskName = GlobalState.selectedTask?.taskName ?: "";
+    val initialTaskName = GlobalState.selectedTask?.taskName ?: ""
     val initialListId =
-        GlobalState.selectedTask?.list?.id ?: GlobalState.selectedList?.id ?: GlobalState.lists[0].id;
+        GlobalState.selectedTask?.list?.id ?: GlobalState.selectedList?.id ?: GlobalState.lists[0].id
     var initialTaskDate: String? = null;
     val context = LocalContext.current;
     var isDropdownExpanded by remember {
@@ -87,11 +89,17 @@ fun TaskModal() {
     var isProcessing by remember {
         mutableStateOf(false)
     }
+
+    val tags = remember {
+        mutableStateListOf<Int>()
+    }
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         if (GlobalState.selectedTask == null) {
             focusRequester.requestFocus()
+        } else {
+            tags.addAll(GlobalState.selectedTask!!.tagIds)
         }
     }
 
@@ -133,6 +141,7 @@ fun TaskModal() {
         if (GlobalState.selectedTask != null) {
             GlobalState.selectedTask!!.taskName = taskName
             GlobalState.selectedTask!!.dueDate = formattedDateTime
+            GlobalState.selectedTask!!.tagIds = ArrayList(tags)
             taskService.updateTask(GlobalState.selectedTask!!.id, GlobalState.selectedTask!!)
                 .enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -145,7 +154,7 @@ fun TaskModal() {
                 })
         } else {
             val taskRequestBody =
-                CreateTaskRequestBody(taskName, formattedDateTime, listId!!)
+                CreateTaskRequestBody(taskName, formattedDateTime, listId, ArrayList(tags))
             taskService.createTask(taskRequestBody).enqueue(object : Callback<Unit> {
                 override fun onFailure(call: Call<Unit>, t: Throwable) {
                     handleApiFailure()
@@ -174,12 +183,12 @@ fun TaskModal() {
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     SectionHeader(text = if (GlobalState.selectedTask == null)  "Create Task" else "Edit Task")
-                    if (GlobalState.selectedList == null) {
-                        CustomDropdown(value = GlobalState.lists.find { it.id == listId }?.listName ?: "",
-                            dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
-                            onChange = { listId = it.id as Int }
-                        )
-                    }
+                    CustomDropdown(
+                        label = "List",
+                        value = arrayListOf(listId),
+                        dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
+                        onChange = { listId = it.id as Int }
+                    )
 
                     OutlinedTextField(
                         value = taskName,
@@ -192,6 +201,20 @@ fun TaskModal() {
                     )
 
                     CustomDatePicker(datePickerState = datePickerState)
+
+                    CustomDropdown(
+                        label = "Tags",
+                        value = tags,
+                        dropdownOptions = ArrayList(GlobalState.tags.map { DropdownOption(it.id, it.tagName)}),
+                        onChange = {
+                            if (tags.contains(it.id)) {
+                                tags.remove(it.id)
+                            } else {
+                                tags.add(it.id as Int)
+                            }
+                        },
+                        closeOnClick = false
+                    )
 
                     Button(
                         onClick = { handleSubmitTask() },

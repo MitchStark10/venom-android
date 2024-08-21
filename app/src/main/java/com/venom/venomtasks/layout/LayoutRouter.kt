@@ -30,8 +30,10 @@ fun LayoutRouter() {
         }
     }
     Scaffold ( floatingActionButton = {
-        FloatingActionButton(onClick = { onFabClick() }) {
-            Icon(Icons.Filled.Add, "Add New")
+        if (GlobalState.lists.size > 0) {
+            FloatingActionButton(onClick = { onFabClick() }) {
+                Icon(Icons.Filled.Add, "Add New")
+            }
         }
     }) {
         Box {

@@ -146,7 +146,7 @@ fun TagModal() {
                             .fillMaxWidth()
                     )
 
-                    CustomDropdown(value = tagColorOptions.find { it.id == tagColor}?.label ?: "", dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
+                    CustomDropdown(label = "Color", value = arrayListOf(tagColor), dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
 
                     Button(
                         onClick = { handleCreateTag() },

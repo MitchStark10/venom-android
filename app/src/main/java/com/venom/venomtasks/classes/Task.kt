@@ -9,13 +9,14 @@ data class Task(
     var isCompleted: Boolean,
     val list: List,
     val taskTag: ArrayList<TaskTag>,
-    val tagIds: ArrayList<Int>
+    var tagIds: ArrayList<Int>
 )
 
 data class CreateTaskRequestBody(
     val taskName: String,
     val dueDate: String?,
-    val listId: Int
+    val listId: Int,
+    val tagIds: ArrayList<Int>
 )
 
 data class TaskReorderItem(
