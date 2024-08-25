@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -132,7 +134,11 @@ fun PageWithGroupedTasks(
                         groupDate!!.time,
                         Date().time,
                         DateUtils.DAY_IN_MILLIS,
-                    ).toString() + " (" + SimpleDateFormat("EEEE, MM/dd").format(groupDate) + ")"
+                    ).toString()
+
+                    if (groupText.startsWith("In")) {
+                        groupText += " (" + SimpleDateFormat("EEEE, MM/dd").format(groupDate) + ")"
+                    }
                 }
             } else if (groupBy == GroupBy.LIST && !group.key.isNullOrEmpty()) {
                 groupText = group.key!!
@@ -147,13 +153,15 @@ fun PageWithGroupedTasks(
     }
 
     Column {
-        Spacer(modifier = Modifier.height(10.dp))
-
         if (listColumnItems.size == 0) {
+            Spacer(modifier = Modifier.size(10.dp))
             Text(text = "No tasks found.")
         }
         LazyColumn(state = lazyListState) {
-            items(listColumnItems, key = { it.title ?: it.task!!.id }) { listColumnItem ->
+            itemsIndexed(listColumnItems, key = { _, item ->  item.title ?: item.task!!.id }) { index, listColumnItem ->
+                if (index == 0) {
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
                 ReorderableItem(
                     state = reorderableLazyListState,
                     key = listColumnItem.title ?: listColumnItem.task!!.id,
@@ -215,6 +223,9 @@ fun PageWithGroupedTasks(
                     ) {
                         if (!listColumnItem.title.isNullOrEmpty()) {
                             Column {
+                                if (index != 0) {
+                                    Spacer(modifier = Modifier.size(20.dp))
+                                }
                                 SectionHeader(text = listColumnItem.title)
                                 Divider()
                                 Spacer(modifier = Modifier.size(10.dp))
