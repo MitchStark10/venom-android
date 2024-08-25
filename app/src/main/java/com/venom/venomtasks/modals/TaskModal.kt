@@ -214,25 +214,28 @@ fun TaskModal() {
 
                     CustomDatePicker(datePickerState = datePickerState)
 
-                    CustomDropdown(
-                        label = "Tags",
-                        value = tags,
-                        dropdownOptions = ArrayList(GlobalState.tags.map { DropdownOption(it.id, it.tagName)}),
-                        onChange = {
-                            if (tags.contains(it.id)) {
-                                tags.remove(it.id)
-                            } else {
-                                tags.add(it.id as Int)
+                    if (GlobalState.tags.size > 0) {
+                        CustomDropdown(
+                            label = "Tags",
+                            value = tags,
+                            dropdownOptions = ArrayList(GlobalState.tags.map { DropdownOption(it.id, it.tagName)}),
+                            onChange = {
+                                if (tags.contains(it.id)) {
+                                    tags.remove(it.id)
+                                } else {
+                                    tags.add(it.id as Int)
+                                }
+                            },
+                            closeOnClick = false,
+                            onOpenStatusChange = {
+                                val handler = Handler(Looper.getMainLooper())
+                                handler.postDelayed({
+                                    blockDismissModal = it
+                                }, 100)
                             }
-                        },
-                        closeOnClick = false,
-                        onOpenStatusChange = {
-                            val handler = Handler(Looper.getMainLooper())
-                            handler.postDelayed({
-                                blockDismissModal = it
-                            }, 100)
-                        }
-                    )
+                        )
+                    }
+
 
                     Button(
                         onClick = { handleSubmitTask() },

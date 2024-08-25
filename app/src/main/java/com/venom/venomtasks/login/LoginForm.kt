@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +32,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
-fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
+fun LoginForm(handleSuccessfulLogin: (String) -> Unit, showSignUp: () -> Unit) {
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
     var isProcessingApiCall by remember { mutableStateOf(false) }
@@ -99,6 +100,10 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
         if (loginFailureMessage.isNotEmpty()) {
             Text(loginFailureMessage, color = Color.Red)
         }
+        Text("Or")
+        OutlinedButton(onClick = { showSignUp() },) {
+            Text("Sign Up")
+        }
     }
 }
 
@@ -106,6 +111,6 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit) {
 @Composable
 fun LoginFormPreview() {
     VenomTheme {
-        LoginForm { }
+        LoginForm(handleSuccessfulLogin = { }, showSignUp = { })
     }
 }

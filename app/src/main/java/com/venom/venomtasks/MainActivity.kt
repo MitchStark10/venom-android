@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import com.venom.venomtasks.layout.LayoutRouter
 import com.venom.venomtasks.layout.NavigationDrawer
 import com.venom.venomtasks.login.LoginForm
+import com.venom.venomtasks.login.LoginSignUpRouter
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.ui.theme.VenomTheme
 
@@ -67,7 +68,7 @@ fun AppContainer(sharedPreferences: SharedPreferences) {
     }
 
     if (!isLoggedIn) {
-        LoginForm(::handleSuccessfulLogin)
+        LoginSignUpRouter(::handleSuccessfulLogin)
     } else {
         Column {
             NavigationDrawer {
