@@ -1,5 +1,22 @@
 #!/bin/bash
 
+function verify_master_and_clean() {
+    # Check if we're on the master branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$current_branch" != "master" ]; then
+        echo "Error: Not on the 'master' branch. Please switch to 'master' before proceeding."
+        return 1  # Indicate failure
+    fi
+
+    # Check for unsaved changes
+    if ! git diff-index --quiet HEAD --; then
+        echo "Error: There are unsaved changes. Please commit or stash them before proceeding."
+        return 1  # Indicate failure
+    fi
+
+    echo "Verification successful: On 'master' branch with no unsaved changes."
+}
+
 # Function to increment versionCode in build.gradle.kts
 increment_version_code() {
   file="./app/build.gradle.kts"
@@ -43,10 +60,17 @@ fi
 # Main script logic
 cd ~/projects/venom-android/ || exit;
 
+verify_master_and_clean
+
 # Increment version code
 increment_version_code
 
 # Build the app bundle
 build_bundle
+
+# Commit the changes
+git add .
+git commit -m "automated release commit"
+git push
 
 open ./app/build/outputs/bundle/release/;
