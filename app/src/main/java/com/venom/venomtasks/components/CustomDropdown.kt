@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,9 +29,13 @@ data class DropdownOption(val id: Any, val label: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomDropdown(label: String, value: List<Any>, dropdownOptions: ArrayList<DropdownOption>, onChange: (newOption: DropdownOption) -> Unit, closeOnClick: Boolean = true) {
+fun CustomDropdown(label: String, value: List<Any>, dropdownOptions: ArrayList<DropdownOption>, onChange: (newOption: DropdownOption) -> Unit, closeOnClick: Boolean = true, onOpenStatusChange: (isOpen: Boolean) -> Unit = { }) {
     var isDropdownExpanded by remember {
         mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = isDropdownExpanded) {
+        onOpenStatusChange(isDropdownExpanded)
     }
 
     val textValue = dropdownOptions.filter { value.contains(it.id) }.joinToString { it.label }
@@ -42,7 +47,9 @@ fun CustomDropdown(label: String, value: List<Any>, dropdownOptions: ArrayList<D
             onValueChange = {},
             readOnly = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
-            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
         )
 
         ExposedDropdownMenu(expanded = isDropdownExpanded, onDismissRequest = { isDropdownExpanded = false }) {

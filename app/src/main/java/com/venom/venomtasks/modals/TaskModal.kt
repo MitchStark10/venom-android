@@ -1,6 +1,8 @@
 package com.venom.venomtasks.modals
 
 import android.annotation.SuppressLint
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -89,6 +91,9 @@ fun TaskModal() {
     var isProcessing by remember {
         mutableStateOf(false)
     }
+    var blockDismissModal by remember {
+        mutableStateOf(true)
+    }
 
     val tags = remember {
         mutableStateListOf<Int>()
@@ -170,9 +175,10 @@ fun TaskModal() {
 
     Dialog(
         onDismissRequest = {
-            GlobalState.openModal = Modal.NONE; GlobalState.selectedTask = null
+            GlobalState.openModal = Modal.NONE
+            GlobalState.selectedTask = null
         },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = !blockDismissModal),
     ) {
         Surface(shape = RoundedCornerShape(16.dp)) {
             Box(
@@ -187,7 +193,13 @@ fun TaskModal() {
                         label = "List",
                         value = arrayListOf(listId),
                         dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
-                        onChange = { listId = it.id as Int }
+                        onChange = { listId = it.id as Int },
+                        onOpenStatusChange = {
+                            val handler = Handler(Looper.getMainLooper())
+                            handler.postDelayed({
+                                blockDismissModal = it
+                            }, 100)
+                        }
                     )
 
                     OutlinedTextField(
@@ -213,7 +225,13 @@ fun TaskModal() {
                                 tags.add(it.id as Int)
                             }
                         },
-                        closeOnClick = false
+                        closeOnClick = false,
+                        onOpenStatusChange = {
+                            val handler = Handler(Looper.getMainLooper())
+                            handler.postDelayed({
+                                blockDismissModal = it
+                            }, 100)
+                        }
                     )
 
                     Button(
