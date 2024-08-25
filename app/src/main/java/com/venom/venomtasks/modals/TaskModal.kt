@@ -61,6 +61,7 @@ import java.text.SimpleDateFormat
 import java.util.TimeZone
 import kotlin.collections.ArrayList
 
+@SuppressLint("SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskModal() {

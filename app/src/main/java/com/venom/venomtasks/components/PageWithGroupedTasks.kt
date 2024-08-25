@@ -269,28 +269,32 @@ fun PageWithGroupedTasks(
                     }
 
                 }
-            }
-        }
 
-        if (showDeleteButton) {
-            Button(
-                onClick = {
-                    isProcessingDeleteTasks = true
-                    val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-                    taskService.deleteCompletedTasks().enqueue(object : Callback<Unit> {
-                        override fun onFailure(call: Call<Unit>, t: Throwable) {
-                            isProcessingDeleteTasks = false
-                        }
+                if (index == listColumnItems.size - 1 && showDeleteButton) {
+                    Button(
+                        onClick = {
+                            isProcessingDeleteTasks = true
+                            val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+                            taskService.deleteCompletedTasks().enqueue(object : Callback<Unit> {
+                                override fun onFailure(call: Call<Unit>, t: Throwable) {
+                                    isProcessingDeleteTasks = false
+                                }
 
-                        override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                            RefreshCounter.refreshListCount++
-                            isProcessingDeleteTasks = false
-                        }
-                    })
-                },
-                enabled = !isProcessingDeleteTasks
-            ) {
-                Text(text = if (isProcessingDeleteTasks) "Processing..." else "Delete All Tasks")
+                                override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                                    RefreshCounter.refreshListCount++
+                                    isProcessingDeleteTasks = false
+                                }
+                            })
+                        },
+                        enabled = !isProcessingDeleteTasks
+                    ) {
+                        Text(text = if (isProcessingDeleteTasks) "Processing..." else "Delete All Tasks")
+                    }
+                }
+
+                if (index == listColumnItems.size - 1) {
+                    Spacer(modifier = Modifier.size(20.dp))
+                }
             }
         }
     }
