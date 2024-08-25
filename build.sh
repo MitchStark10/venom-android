@@ -5,13 +5,13 @@ function verify_master_and_clean() {
     current_branch=$(git rev-parse --abbrev-ref HEAD)
     if [ "$current_branch" != "master" ]; then
         echo "Error: Not on the 'master' branch. Please switch to 'master' before proceeding."
-        return 1  # Indicate failure
+        exit 1  # Indicate failure
     fi
 
     # Check for unsaved changes
     if ! git diff-index --quiet HEAD --; then
         echo "Error: There are unsaved changes. Please commit or stash them before proceeding."
-        return 1  # Indicate failure
+        exit 1  # Indicate failure
     fi
 
     echo "Verification successful: On 'master' branch with no unsaved changes."
