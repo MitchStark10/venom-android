@@ -27,6 +27,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,12 +67,7 @@ fun TaskModal() {
     val initialTaskName = GlobalState.selectedTask?.taskName ?: ""
     val initialListId =
         GlobalState.selectedTask?.list?.id ?: GlobalState.selectedList?.id ?: GlobalState.lists[0].id
-    var initialTaskDate: String? = null;
-    val context = LocalContext.current;
-    var isDropdownExpanded by remember {
-        mutableStateOf(false)
-    }
-
+    var initialTaskDate: String? = SimpleDateFormat("MM/dd/yyyy").format(System.currentTimeMillis())
     if (!GlobalState.selectedTask?.dueDate.isNullOrEmpty()) {
         initialTaskDate =
             GlobalState.selectedTask!!.dueDate!!.slice(5..6) + "/" +
@@ -84,7 +80,7 @@ fun TaskModal() {
         mutableStateOf(initialTaskName)
     }
     var listId by remember {
-        mutableStateOf(initialListId)
+        mutableIntStateOf(initialListId)
     }
     val datePickerState =
         rememberDatePickerState(initialSelectedDateMillis = getDateFromDateString(initialTaskDate)?.time)
