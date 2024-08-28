@@ -125,7 +125,6 @@ fun NavigationDrawer(
                     GlobalState.lists.addAll(listsResponseBody)
 
                     if (GlobalState.selectedList != null) {
-
                         val updatedList =
                             listsResponseBody.find { it.id == GlobalState.selectedList!!.id }
 

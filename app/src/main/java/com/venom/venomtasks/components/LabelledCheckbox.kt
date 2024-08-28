@@ -66,7 +66,7 @@ fun TaskCheckbox(
 
             if (showListName) {
                 Text(
-                    text = task.list.listName,
+                    text = task.list!!.listName,
                     fontSize = 12.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.SemiBold

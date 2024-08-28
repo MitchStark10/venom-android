@@ -110,7 +110,7 @@ fun PageWithGroupedTasks(
     LaunchedEffect(key1 = tasks) {
         listColumnItems.clear()
         val groupedTasks = tasks.sortedBy { it.dueDate }
-            .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list.listName }
+            .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list!!.listName }
 
         val sortedGroups = groupedTasks.entries.filter { !it.key.isNullOrEmpty() }.toMutableList()
         val noDueDateGroup = groupedTasks.entries.find { it.key.isNullOrEmpty() }
