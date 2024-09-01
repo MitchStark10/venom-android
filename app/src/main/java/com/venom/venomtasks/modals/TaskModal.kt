@@ -68,7 +68,7 @@ fun TaskModal() {
     val initialTaskName = GlobalState.selectedTask?.taskName ?: ""
     val initialListId =
         GlobalState.selectedTask?.list?.id ?: GlobalState.selectedList?.id ?: GlobalState.lists[0].id
-    var initialTaskDate: String? = null
+    var initialTaskDate: String? = SimpleDateFormat("MM/dd/yyyy").format(System.currentTimeMillis())
     if (!GlobalState.selectedTask?.dueDate.isNullOrEmpty()) {
         initialTaskDate =
             GlobalState.selectedTask!!.dueDate!!.slice(5..6) + "/" +
@@ -145,6 +145,7 @@ fun TaskModal() {
             taskToUpdate.taskName = taskName
             taskToUpdate.dueDate = formattedDateTime
             taskToUpdate.tagIds = ArrayList(tags)
+            taskToUpdate.listId = listId
             taskService.updateTask(taskToUpdate.id, taskToUpdate)
                 .enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {

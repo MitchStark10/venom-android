@@ -8,6 +8,7 @@ data class Task(
     var timeViewOrder: Int?,
     var isCompleted: Boolean,
     val list: List?,
+    var listId: Int?,
     val taskTag: ArrayList<TaskTag>,
     var tagIds: ArrayList<Int>
 )
