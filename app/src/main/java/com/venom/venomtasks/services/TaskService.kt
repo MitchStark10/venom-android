@@ -1,6 +1,7 @@
 package com.venom.venomtasks.services
 
 import com.venom.venomtasks.classes.CreateTaskRequestBody
+import com.venom.venomtasks.classes.StandupResponse
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.classes.TaskReorderBody
 import retrofit2.Call
@@ -34,4 +35,7 @@ interface TaskService {
 
     @PUT("/tasks/reorder")
     fun reorderTasks(@Body reorderTasksBody: TaskReorderBody): Call<Unit>
+
+    @GET("/tasks/standup")
+    fun getStandupTasks(@Query("today") today: String?): Call<StandupResponse>
 }

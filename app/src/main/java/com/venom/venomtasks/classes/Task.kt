@@ -30,3 +30,9 @@ data class TaskReorderItem(
 data class TaskReorderBody(
     val tasksToUpdate: kotlin.collections.List<TaskReorderItem>
 )
+
+data class StandupResponse(
+    val yesterday: ArrayList<Task>,
+    val today: ArrayList<Task>,
+    val blocked: ArrayList<Task>
+)
