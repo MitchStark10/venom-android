@@ -16,6 +16,7 @@ enum class Modal {
 enum class Views {
     TODAY,
     UPCOMING,
+    STANDUP,
     COMPLETED,
     LIST,
     TAGS

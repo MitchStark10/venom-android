@@ -44,6 +44,7 @@ fun LayoutRouter() {
                 when (GlobalState.selectedView) {
                     Views.TODAY -> TodayView()
                     Views.UPCOMING -> UpcomingView()
+                    Views.STANDUP -> StandupView()
                     Views.COMPLETED -> CompletedView()
                     Views.LIST -> ListView(list = GlobalState.selectedList!!)
                     Views.TAGS -> TagView()

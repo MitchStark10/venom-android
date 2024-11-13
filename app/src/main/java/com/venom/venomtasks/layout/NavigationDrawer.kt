@@ -1,6 +1,7 @@
 package com.venom.venomtasks.layout
 
 import android.os.Build
+import android.provider.Settings.Global
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -179,6 +180,18 @@ fun NavigationDrawer(
                         GlobalState.selectedList = null;
                         closeDrawer()
                     }
+                )
+                NavigationDrawerItem(
+                    label = {
+                        NavigationDrawerRow(text = "Standup", icon = Icons.Filled.DateRange)
+                    },
+                    selected = GlobalState.selectedView == Views.STANDUP,
+                    onClick = {
+                        GlobalState.selectedView = Views.STANDUP
+                        GlobalState.selectedList = null;
+                        closeDrawer()
+                    }
+
                 )
                 NavigationDrawerItem(
                     label = {
