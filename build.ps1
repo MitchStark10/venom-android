@@ -38,7 +38,7 @@ function Increment-VersionCode {
             # Increment the version number
             $newVersion = $currentVersion + 1
             # Replace the version number in the line
-            $_ -replace $regex, "$versionString = $newVersion"
+            $_ -replace $regex, "versionCode = $newVersion"
         } else {
             $_
         }
