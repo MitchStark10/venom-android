@@ -94,4 +94,4 @@ git commit -m "automated release commit"
 git push
 
 # Open the directory containing the build outputs
-Start-Process -FilePath "explorer.exe" -ArgumentList "./app/build/outputs/bundle/release/"
+explorer .\app\build\outputs\bundle\release\
