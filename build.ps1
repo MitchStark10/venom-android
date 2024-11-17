@@ -17,18 +17,40 @@ function Verify-MasterAndClean {
   }
 }
 
-function Increment-VersionCode {
-  $filePath = "./app/build.gradle.kts"
-  $tempFilePath = "temp.txt"
+function Update-VersionNumber {
+    $filePath = "./app/build.gradle.kts"
 
-  Get-Content $filePath | ForEach-Object {
-    if ($_ -match "versionCode =") {
-      $_ = $_ -replace "(\d+)", { param($m) [int]$m.Value + 1 }
+    # Read the file contents
+    $fileContents = Get-Content -Path $filePath
+
+    # Initialize a flag to track if the version number was found and updated
+    $versionFound = $false
+
+    # Use a regular expression to match the version number line
+    $regex = [regex]::Escape($versionString) + "\s*=\s*(\d+)"
+
+    # Process each line
+    $updatedContents = $fileContents | ForEach-Object {
+        if ($_ -match $regex) {
+            $versionFound = $true
+            # Extract the current version number
+            $currentVersion = [int]$matches[1]
+            # Increment the version number
+            $newVersion = $currentVersion + 1
+            # Replace the version number in the line
+            $_ -replace $regex, "$versionString = $newVersion"
+        } else {
+            $_
+        }
     }
-    $_
-  } | Set-Content $tempFilePath
 
-  Move-Item -Path $tempFilePath -Destination $filePath -Force
+    if ($versionFound) {
+        # Write the updated contents back to the file
+        Set-Content -Path $filePath -Value $updatedContents
+        Write-Host "Version number updated successfully."
+    } else {
+        Write-Host "Version number not found in the file."
+    }
 }
 
 function Build-Bundle {

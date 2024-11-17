@@ -11,7 +11,7 @@ android {
         applicationId = "com.venom.venomtasks"
         minSdk = 26
         targetSdk = 35
-        versionCode = param($m) [int]$m.Value +  param($m) [int]$m.Value + 1  
+        versionCode = 14
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
