@@ -27,7 +27,7 @@ function Increment-VersionCode {
     $versionFound = $false
 
     # Use a regular expression to match the version number line
-    $regex = [regex]::Escape($versionString) + "\s*=\s*(\d+)"
+    $regex = [regex]::Escape("versionCode") + "\s*=\s*(\d+)"
 
     # Process each line
     $updatedContents = $fileContents | ForEach-Object {
