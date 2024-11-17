@@ -110,7 +110,13 @@ fun PageWithGroupedTasks(
     LaunchedEffect(key1 = tasks) {
         listColumnItems.clear()
         val groupedTasks = tasks.sortedBy { it.dueDate }
-            .groupBy { if (groupBy == GroupBy.DATE) it.dueDate else it.list!!.listName }
+            .groupBy {
+                when (groupBy) {
+                    GroupBy.DATE -> it.dueDate
+                    GroupBy.TYPE -> it.type
+                    GroupBy.LIST -> it.list!!.listName
+                }
+            }
 
         val sortedGroups = groupedTasks.entries.filter { !it.key.isNullOrEmpty() }.toMutableList()
         val noDueDateGroup = groupedTasks.entries.find { it.key.isNullOrEmpty() }
@@ -140,7 +146,7 @@ fun PageWithGroupedTasks(
                         groupText += " (" + SimpleDateFormat("EEEE, MM/dd").format(groupDate) + ")"
                     }
                 }
-            } else if (groupBy == GroupBy.LIST && !group.key.isNullOrEmpty()) {
+            } else if ((groupBy == GroupBy.LIST || groupBy == GroupBy.TYPE) && !group.key.isNullOrEmpty()) {
                 groupText = group.key!!
             }
 
@@ -231,36 +237,7 @@ fun PageWithGroupedTasks(
                                 Spacer(modifier = Modifier.size(10.dp))
                             }
                         } else if (listColumnItem.task != null) {
-                            var isCompleted by remember { mutableStateOf(listColumnItem.task.isCompleted) }
-                            fun handleTaskCompletion(updatedIsCompleted: Boolean) {
-                                isCompleted = updatedIsCompleted
-                                listColumnItem.task.isCompleted = updatedIsCompleted
-                                val taskApi =
-                                    RetrofitBuilder.getRetrofit().create(TaskService::class.java)
-                                taskApi.updateTask(listColumnItem.task.id, listColumnItem.task)
-                                    .enqueue(object : Callback<Unit> {
-                                        override fun onFailure(call: Call<Unit>, t: Throwable) {
-                                            Toast.makeText(
-                                                toastContext,
-                                                "Unable to mark task as completed",
-                                                Toast.LENGTH_SHORT
-                                            )
-                                                .show()
-                                        }
-
-                                        override fun onResponse(
-                                            call: Call<Unit>,
-                                            response: Response<Unit>
-                                        ) {
-                                            RefreshCounter.refreshListCount++
-                                            isCompleted = false
-                                        }
-                                    })
-                            }
-
                             TaskCheckbox(
-                                checked = isCompleted,
-                                onCheckedChange = { handleTaskCompletion(it) },
                                 label = listColumnItem.task.taskName,
                                 task = listColumnItem.task,
                                 showListName = showListNameInTask

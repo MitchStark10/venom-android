@@ -1,5 +1,6 @@
 package com.venom.venomtasks.components
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,9 +14,14 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,17 +29,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.Task
+import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.TaskService
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun TaskCheckbox(
-    checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit),
     label: String,
     modifier: Modifier = Modifier,
     task: Task,
     showListName: Boolean = false
 ) {
+
+    val toastContext = LocalContext.current
+    var isCompleted by remember { mutableStateOf(task.isCompleted) }
+
+    fun handleTaskCompletion(updatedIsCompleted: Boolean) {
+        isCompleted = updatedIsCompleted
+        task.isCompleted = updatedIsCompleted
+        val taskApi =
+            RetrofitBuilder.getRetrofit().create(TaskService::class.java)
+        taskApi.updateTask(task.id, task)
+            .enqueue(object : Callback<Unit> {
+                override fun onFailure(call: Call<Unit>, t: Throwable) {
+                    Toast.makeText(
+                        toastContext,
+                        "Unable to mark task as completed",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+
+                override fun onResponse(
+                    call: Call<Unit>,
+                    response: Response<Unit>
+                ) {
+                    RefreshCounter.refreshListCount++
+                    isCompleted = false
+                }
+            })
+    }
 
     fun editTask() {
         GlobalState.selectedTask = task;
@@ -49,8 +88,8 @@ fun TaskCheckbox(
             .wrapContentSize(),
     ) {
         Checkbox(
-            checked = checked,
-            onCheckedChange = { onCheckedChange(it) }
+            checked = isCompleted,
+            onCheckedChange = { handleTaskCompletion(it) }
         )
 
         Spacer(Modifier.size(6.dp))

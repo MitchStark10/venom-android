@@ -10,7 +10,8 @@ data class Task(
     val list: List?,
     var listId: Int?,
     val taskTag: ArrayList<TaskTag>,
-    var tagIds: ArrayList<Int>
+    var tagIds: ArrayList<Int>,
+    var type: String?
 )
 
 data class CreateTaskRequestBody(

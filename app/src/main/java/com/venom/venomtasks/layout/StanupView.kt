@@ -9,11 +9,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.GroupBy
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.StandupResponse
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
+import com.venom.venomtasks.components.PageWithGroupedTasks
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TaskService
 import com.venom.venomtasks.utils.getDateStringFromMillis
@@ -27,13 +29,7 @@ import java.util.TimeZone
 fun StandupView() {
 
     var isLoading by remember { mutableStateOf(true) }
-    var yesterdayTasks = remember {
-        mutableStateListOf<Task>()
-    }
-    var todayTasks = remember {
-        mutableStateListOf<Task>()
-    }
-    var blockedTasks = remember {
+    var tasks = remember {
         mutableStateListOf<Task>()
     }
 
@@ -41,11 +37,12 @@ fun StandupView() {
         if (GlobalState.selectedView === Views.STANDUP)     {
             val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
             taskService.getStandupTasks(
-                getDateStringFromMillis(
-                    Date().time,
-                    "yyyy-MM-dd",
-                    TimeZone.getDefault().id
-                )
+                "11/15/2024"
+//                getDateStringFromMillis(
+//                    Date().time,
+//                    "yyyy-MM-dd",
+//                    TimeZone.getDefault().id
+//                )
             ).enqueue(object : Callback<StandupResponse> {
                 override fun onFailure(call: Call<StandupResponse>, t: Throwable) {
                     isLoading = false
@@ -56,21 +53,30 @@ fun StandupView() {
                     response: Response<StandupResponse>
                 ) {
                     isLoading = false
-                    response.body()?.yesterday.let {
+                    response.body()?.yesterday?.map(fun(task): Task {
+                        task.type = "Yesterday"
+                        return task;
+                    }).let {
                         if (it != null) {
-                            yesterdayTasks.addAll(it)
+                            tasks.addAll(it)
                         }
                     }
 
-                    response.body()?.today.let {
+                    response.body()?.today?.map(fun(task): Task {
+                        task.type = "Today"
+                        return task;
+                    }).let {
                         if (it != null) {
-                            todayTasks.addAll(it)
+                            tasks.addAll(it)
                         }
                     }
 
-                    response.body()?.blocked.let {
+                    response.body()?.blocked?.map(fun(task): Task {
+                        task.type = "Blocked"
+                        return task;
+                    }).let {
                         if (it != null) {
-                            blockedTasks.addAll(it)
+                            tasks.addAll(it)
                         }
                     }
                 }
@@ -81,6 +87,6 @@ fun StandupView() {
     if (isLoading) {
         CenteredLoader()
     } else {
-        Text("Ready to render tasks!")
+        PageWithGroupedTasks(tasks = ArrayList(tasks.toList()), groupBy = GroupBy.TYPE, showDeleteButton = false, showListNameInTask = true, enableReorder = false)
     }
 }
