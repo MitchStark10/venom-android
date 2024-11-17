@@ -60,7 +60,7 @@ function Build-Bundle {
   & .\gradlew bundleRelease
 
   # Path to your keystore
-  $keystorePath = "/Users/mitchstark/venomkeystore"
+  $keystorePath = "C:\Users\Mitch\venomkeystore.jks"
 
   # Key alias
   $keyAlias = "venomkeystore"
