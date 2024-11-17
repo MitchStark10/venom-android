@@ -17,7 +17,7 @@ function Verify-MasterAndClean {
   }
 }
 
-function Update-VersionNumber {
+function Increment-VersionCode {
     $filePath = "./app/build.gradle.kts"
 
     # Read the file contents
