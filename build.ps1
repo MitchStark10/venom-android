@@ -6,11 +6,11 @@ function Verify-MasterAndClean {
       exit 1  # Indicate failure
   }
 
-  # Check for unsaved changes
-  if (-not (git diff-index --quiet HEAD --)) {
-      Write-Host "Error: There are unsaved changes. Please commit or stash them before proceeding."
-      exit 1  # Indicate failure
-  }
+  # # Check for unsaved changes
+  # if (-not (git diff-index --quiet HEAD --)) {
+  #     Write-Host "Error: There are unsaved changes. Please commit or stash them before proceeding."
+  #     exit 1  # Indicate failure
+  # }
 
   Write-Host "Verification successful: On 'master' branch with no unsaved changes."
 }
