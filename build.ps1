@@ -2,17 +2,19 @@ function Verify-MasterAndClean {
   # Check if we're on the master branch
   $currentBranch = git rev-parse --abbrev-ref HEAD
   if ($currentBranch -ne "master") {
-      Write-Host "Error: Not on the 'master' branch. Please switch to 'master' before proceeding."
-      exit 1  # Indicate failure
+    Write-Host "Error: Not on the 'master' branch. Please switch to 'master' before proceeding."
+    exit 1  # Indicate failure
   }
 
-  # # Check for unsaved changes
-  # if (-not (git diff-index --quiet HEAD --)) {
-  #     Write-Host "Error: There are unsaved changes. Please commit or stash them before proceeding."
-  #     exit 1  # Indicate failure
-  # }
-
-  Write-Host "Verification successful: On 'master' branch with no unsaved changes."
+  $statusOutput = git status --porcelain
+  if ($statusOutput) { 
+    Write-Host "Unsaved changes detected:"
+    Write-Host $statusOutput 
+    exit -1
+  }
+  else { 
+    Write-Host "Verification successful: On 'master' branch with no unsaved changes."
+  }
 }
 
 function Increment-VersionCode {
@@ -20,10 +22,10 @@ function Increment-VersionCode {
   $tempFilePath = "temp.txt"
 
   Get-Content $filePath | ForEach-Object {
-      if ($_ -match "versionCode =") {
-          $_ = $_ -replace "(\d+)", {param($m) [int]$m.Value + 1 }
-      }
-      $_
+    if ($_ -match "versionCode =") {
+      $_ = $_ -replace "(\d+)", { param($m) [int]$m.Value + 1 }
+    }
+    $_
   } | Set-Content $tempFilePath
 
   Move-Item -Path $tempFilePath -Destination $filePath -Force
