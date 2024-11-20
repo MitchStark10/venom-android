@@ -228,7 +228,7 @@ fun TaskModal() {
                                     tags.add(it.id as Int)
                                 }
                             },
-                            closeOnClick = false,
+                            closeOnClick = true,
                             onOpenStatusChange = {
                                 val handler = Handler(Looper.getMainLooper())
                                 handler.postDelayed({
