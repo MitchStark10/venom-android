@@ -238,7 +238,6 @@ fun TaskModal() {
                         )
                     }
 
-
                     Button(
                         onClick = { handleSubmitTask() },
                         enabled = !isProcessing && listId != null,

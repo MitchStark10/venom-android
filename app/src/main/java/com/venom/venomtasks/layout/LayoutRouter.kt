@@ -48,6 +48,7 @@ fun LayoutRouter() {
                     Views.COMPLETED -> CompletedView()
                     Views.LIST -> ListView(list = GlobalState.selectedList!!)
                     Views.TAGS -> TagView()
+                    Views.SETTINGS -> SettingsView()
                 }
 
                 when (GlobalState.openModal) {

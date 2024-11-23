@@ -50,7 +50,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.venom.venomtasks.classes.List
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
@@ -213,19 +215,10 @@ fun NavigationDrawer(
                     closeDrawer()
                 })
 
-                NavigationDrawerItem(label = {
-                    NavigationDrawerRow(
-                        text = "Add New List",
-                        icon = Icons.Outlined.Add
-                    )
-                },
-                    selected = false,
-                    onClick = { GlobalState.openModal = Modal.LIST_MODAL }
-                )
                 Divider()
 
-                LazyColumn(state = lazyListState, modifier = Modifier.fillMaxHeight()) {
-                    items(GlobalState.lists, key = { it.id }) { list ->
+                LazyColumn(state = lazyListState, modifier = Modifier.weight(1F)) {
+                    items(GlobalState.lists, key = { it.id }){ list ->
                         ReorderableItem(
                             state = reorderableLazyListState,
                             key = list.id
@@ -277,9 +270,34 @@ fun NavigationDrawer(
                                 )
                             )
                         }
-
                     }
                 }
+
+                Divider()
+
+                NavigationDrawerItem(label = {
+                    NavigationDrawerRow(
+                        text = "Add New List",
+                        icon = Icons.Outlined.Add
+                    )
+                },
+                    selected = false,
+                    onClick = { GlobalState.openModal = Modal.LIST_MODAL }
+                )
+                Divider()
+
+                NavigationDrawerItem(
+                    label = {
+                        NavigationDrawerRow(text = "Settings", icon = Icons.Filled.Settings)
+                    },
+                    selected = GlobalState.selectedView == Views.SETTINGS,
+                    onClick = {
+                        GlobalState.selectedView = Views.SETTINGS
+                        GlobalState.selectedList = null;
+                        closeDrawer()
+                    },
+                    modifier = Modifier.zIndex(3F)
+                )
 
                 if (isLoading) {
                     CenteredLoader()

@@ -19,7 +19,8 @@ enum class Views {
     STANDUP,
     COMPLETED,
     LIST,
-    TAGS
+    TAGS,
+    SETTINGS
 }
 
 class GlobalState {

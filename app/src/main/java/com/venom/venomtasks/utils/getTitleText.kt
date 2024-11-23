@@ -11,5 +11,6 @@ fun getTitleText(): String {
         Views.UPCOMING -> "Upcoming"
         Views.LIST -> GlobalState.selectedList?.listName ?: "Venom"
         Views.TAGS -> "Tags"
+        Views.SETTINGS -> "Settings"
     }
 }
