@@ -19,13 +19,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
-import com.venom.venomtasks.login.ui.theme.VenomTheme
-import com.venom.venomtasks.services.LoginService
+import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,12 +37,12 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit, showSignUp: () -> Unit) {
     var loginFailureMessage by remember { mutableStateOf("") }
 
     fun handleButtonClick() {
-        val loginService: LoginService =
-            RetrofitBuilder.getRetrofit().create(LoginService::class.java)
+        val userService: UserService =
+            RetrofitBuilder.getRetrofit().create(UserService::class.java)
         isProcessingApiCall = true
         val userToLoginWith = User(userEmail, userPassword)
         loginFailureMessage = ""
-        loginService.login(userToLoginWith).enqueue(object : Callback<LoginResponse> {
+        userService.login(userToLoginWith).enqueue(object : Callback<LoginResponse> {
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 isProcessingApiCall = false
                 loginFailureMessage = "Unexpected error occurred while logging in."
@@ -104,13 +102,5 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit, showSignUp: () -> Unit) {
         OutlinedButton(onClick = { showSignUp() },) {
             Text("Sign Up")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginFormPreview() {
-    VenomTheme {
-        LoginForm(handleSuccessfulLogin = { }, showSignUp = { })
     }
 }

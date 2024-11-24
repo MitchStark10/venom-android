@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
-import com.venom.venomtasks.services.LoginService
+import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -43,12 +43,12 @@ fun SignUpForm(handleSuccessfulLogin: (String) -> Unit, showLogin: () -> Unit) {
             return
         }
 
-        val loginService: LoginService =
-            RetrofitBuilder.getRetrofit().create(LoginService::class.java)
+        val userService: UserService =
+            RetrofitBuilder.getRetrofit().create(UserService::class.java)
         isProcessingApiCall = true
         val newUser = User(userEmail, userPassword)
         signUpFailureMessage = ""
-        loginService.createUser(newUser).enqueue(object : Callback<LoginResponse> {
+        userService.createUser(newUser).enqueue(object : Callback<LoginResponse> {
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 isProcessingApiCall = false
                 signUpFailureMessage = "Unexpected error occurred while logging in."
