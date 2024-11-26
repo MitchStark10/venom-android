@@ -9,5 +9,9 @@ enum class AutoDeleteOptions(val value: String) {
 
 data class SettingsResponse(
     val email: String,
-    val autoDeleteTasks: AutoDeleteOptions
+    val autoDeleteTasks: String
+)
+
+data class EditSettingsBody(
+    val autoDeleteTasks: String
 )

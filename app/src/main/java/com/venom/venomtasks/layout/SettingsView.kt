@@ -21,27 +21,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.venom.venomtasks.classes.AutoDeleteOptions
+import com.venom.venomtasks.classes.EditSettingsBody
 import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
 import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.SetLoginState
 import com.venom.venomtasks.services.UserService
+import com.venom.venomtasks.utils.getSharedPreferences
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
 fun SettingsView() {
-    var email = ""
-    val autoDeleteTasksValue = remember {
-        mutableStateListOf<String>()
+    var email by remember {
+        mutableStateOf("")
+    }
+    var autoDeleteTasksValue by remember {
+        mutableStateOf("")
     }
     var isProcessing by remember {
         mutableStateOf(true)
     }
-    val toastContext = LocalContext.current;
+    val currentContext = LocalContext.current;
+    val sharedPreferences = getSharedPreferences(currentContext)
+    val setLoginState = SetLoginState.current
 
     LaunchedEffect(GlobalState.selectedView) {
         if (GlobalState.selectedView != Views.SETTINGS) {
@@ -58,7 +65,7 @@ fun SettingsView() {
 
                 if (settingsResponse == null) {
                     Toast.makeText(
-                        toastContext,
+                        currentContext,
                         "Unable to fetch settings",
                         Toast.LENGTH_SHORT
                     )
@@ -66,13 +73,14 @@ fun SettingsView() {
                     isProcessing = false
                     return;
                 }
+                autoDeleteTasksValue = settingsResponse.autoDeleteTasks
                 email = settingsResponse.email
             }
 
             override fun onFailure(call: Call<SettingsResponse>, t: Throwable) {
                 // Toast
                 Toast.makeText(
-                    toastContext,
+                    currentContext,
                     "Unable to fetch settings",
                     Toast.LENGTH_SHORT
                 )
@@ -86,28 +94,43 @@ fun SettingsView() {
         Text("Standup Settings")
         CustomDropdown(
             label = "Auto-Delete Tasks",
-            value = autoDeleteTasksValue,
+            value = arrayListOf(autoDeleteTasksValue),
             dropdownOptions = arrayListOf(
-                DropdownOption(AutoDeleteOptions.NEVER.value, "Never")
+                DropdownOption(AutoDeleteOptions.NEVER.value, "Never"),
+                DropdownOption(AutoDeleteOptions.ONE_WEEK.value, "1 Week After Task Completion"),
+                DropdownOption(AutoDeleteOptions.TWO_WEEKS.value, "2 Weeks After Task Completion"),
+                DropdownOption(AutoDeleteOptions.ONE_MONTH.value, "1 Month After Task Completion")
             ),
             onChange = {
-                if (autoDeleteTasksValue.contains(it.id
-                )) {
-                    autoDeleteTasksValue.remove(it.id);
-                } else {
-                    autoDeleteTasksValue.add(it.id as String)
-                }
+                val previousValue = autoDeleteTasksValue
+                autoDeleteTasksValue = it.id as String
+                val userService = RetrofitBuilder.getRetrofit().create(UserService::class.java)
+                userService.editSettings(EditSettingsBody(it.id)).enqueue(object: Callback<Unit> {
+                    override fun onFailure(call: Call<Unit>, t: Throwable) {
+                        Toast.makeText(currentContext, "Failed to update auto-deletion cadence", Toast.LENGTH_SHORT).show()
+                        autoDeleteTasksValue = previousValue
+                    }
+
+                    override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                        Toast.makeText(currentContext, "Successfully updated auto-deletion cadence", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
         )
         CustomDropdown(
             label = "Standup Lists",
             value = GlobalState.lists.filter { it.isStandupList }.map { it.id },
             dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
-            onChange = { }
+            onChange = {
+
+            }
         )
         Divider()
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = { }, modifier = Modifier.padding(end = 16.dp)) {
+            Button(onClick = {
+                sharedPreferences.edit().remove("token").apply()
+                setLoginState(false)
+            }, modifier = Modifier.padding(end = 16.dp)) {
                 Text("Logout")
             }
             Text("Currently signed-in as: $email")

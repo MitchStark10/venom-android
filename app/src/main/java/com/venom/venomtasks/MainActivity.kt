@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,9 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.venom.venomtasks.layout.LayoutRouter
 import com.venom.venomtasks.layout.NavigationDrawer
-import com.venom.venomtasks.login.LoginForm
 import com.venom.venomtasks.login.LoginSignUpRouter
 import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.SetLoginState
 import com.venom.venomtasks.ui.theme.VenomTheme
 
 
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val sharedPrefs =
-            applicationContext.getSharedPreferences("VENOM_SHARED_PREFS", MODE_PRIVATE)
+            com.venom.venomtasks.utils.getSharedPreferences(applicationContext)
 
         enableEdgeToEdge()
 
@@ -70,9 +71,11 @@ fun AppContainer(sharedPreferences: SharedPreferences) {
     if (!isLoggedIn) {
         LoginSignUpRouter(::handleSuccessfulLogin)
     } else {
-        Column {
-            NavigationDrawer {
-                LayoutRouter()
+        CompositionLocalProvider(SetLoginState provides { newState -> isLoggedIn = newState} ) {
+            Column {
+                NavigationDrawer {
+                    LayoutRouter()
+                }
             }
         }
     }
