@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +26,7 @@ import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
+import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.SetLoginState
 import com.venom.venomtasks.services.UserService
@@ -43,20 +43,25 @@ fun SettingsView() {
     var autoDeleteTasksValue by remember {
         mutableStateOf("")
     }
+    var standupListsValue = remember {
+        mutableStateListOf<Int>()
+    }
     var isProcessing by remember {
         mutableStateOf(true)
     }
-    val currentContext = LocalContext.current;
+    val currentContext = LocalContext.current
     val sharedPreferences = getSharedPreferences(currentContext)
     val setLoginState = SetLoginState.current
 
     LaunchedEffect(GlobalState.selectedView) {
         if (GlobalState.selectedView != Views.SETTINGS) {
-            return@LaunchedEffect;
+            return@LaunchedEffect
         }
 
-        val userSerivce = RetrofitBuilder.getRetrofit().create(UserService::class.java)
-        userSerivce.getSettings().enqueue(object: Callback<SettingsResponse> {
+        val userService = RetrofitBuilder.getRetrofit().create(UserService::class.java)
+        standupListsValue.clear()
+        standupListsValue.addAll(GlobalState.lists.filter { it.isStandupList }.map { it.id })
+        userService.getSettings().enqueue(object: Callback<SettingsResponse> {
             override fun onResponse(
                 call: Call<SettingsResponse>,
                 response: Response<SettingsResponse>
@@ -71,7 +76,7 @@ fun SettingsView() {
                     )
                         .show()
                     isProcessing = false
-                    return;
+                    return
                 }
                 autoDeleteTasksValue = settingsResponse.autoDeleteTasks
                 email = settingsResponse.email
@@ -85,7 +90,7 @@ fun SettingsView() {
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                isProcessing = false;
+                isProcessing = false
             }
         })
     }
@@ -119,10 +124,39 @@ fun SettingsView() {
         )
         CustomDropdown(
             label = "Standup Lists",
-            value = GlobalState.lists.filter { it.isStandupList }.map { it.id },
+            value = standupListsValue,
             dropdownOptions = ArrayList(GlobalState.lists.map { DropdownOption(it.id, it.listName) }),
             onChange = {
+                val listToUpdate = GlobalState.lists.find { list -> list.id == it.id }
+                if (listToUpdate == null) {
+                    Toast.makeText(currentContext, "An error occurred while updating the list setting.", Toast.LENGTH_SHORT).show()
+                    return@CustomDropdown
+                }
 
+                if (standupListsValue.contains(it.id)) {
+                    standupListsValue.remove(it.id)
+                } else {
+                    standupListsValue.add(it.id as Int)
+                }
+
+                val originalValue = listToUpdate.isStandupList
+                listToUpdate.isStandupList = !listToUpdate.isStandupList
+
+                val listService = RetrofitBuilder.getRetrofit().create(ListService::class.java)
+                listService.updateList(listToUpdate.id, listToUpdate).enqueue(object: Callback<Unit> {
+                    override fun onFailure(call: Call<Unit>, t: Throwable) {
+                        println("t")
+                        println(t)
+                        Toast.makeText(currentContext, "Unable to update standup lists.", Toast.LENGTH_SHORT).show()
+                        listToUpdate.isStandupList = originalValue
+                    }
+
+                    override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                        print("resposne")
+                        println(response)
+                        Toast.makeText(currentContext, "Standup lists updated successfully.", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
         )
         Divider()

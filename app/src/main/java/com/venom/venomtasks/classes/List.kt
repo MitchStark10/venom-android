@@ -5,7 +5,7 @@ data class List(
     val order: Int,
     val listName: String,
     val tasks: ArrayList<Task>,
-    val isStandupList: Boolean
+    var isStandupList: Boolean
 )
 
 data class ListCreationRequestBody(

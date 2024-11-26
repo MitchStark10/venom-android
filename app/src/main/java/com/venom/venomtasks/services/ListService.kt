@@ -19,6 +19,9 @@ interface ListService {
     @POST("lists")
     fun createList(@Body listRequestBody: ListCreationRequestBody): Call<Unit>
 
+    @PUT("lists/{id}")
+    fun updateList(@Path("id") id: Int, @Body updateList: List): Call<Unit>
+
     @DELETE("lists/{id}")
     fun deleteList(@Path("id") id: Int): Call<Unit>
 
