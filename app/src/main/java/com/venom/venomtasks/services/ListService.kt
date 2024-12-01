@@ -1,7 +1,7 @@
 package com.venom.venomtasks.services
 
+import com.venom.venomtasks.classes.CreateOrUpdateListRequestBody
 import com.venom.venomtasks.classes.List
-import com.venom.venomtasks.classes.ListCreationRequestBody
 import com.venom.venomtasks.classes.ReorderListsBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -17,7 +17,7 @@ interface ListService {
     fun getLists(): Call<ArrayList<List>>
 
     @POST("lists")
-    fun createList(@Body listRequestBody: ListCreationRequestBody): Call<Unit>
+    fun createList(@Body listRequestBody: CreateOrUpdateListRequestBody): Call<Unit>
 
     @PUT("lists/{id}")
     fun updateList(@Path("id") id: Int, @Body updateList: List): Call<Unit>

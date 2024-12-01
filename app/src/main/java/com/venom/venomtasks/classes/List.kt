@@ -3,12 +3,12 @@ package com.venom.venomtasks.classes
 data class List(
     val id: Int,
     val order: Int,
-    val listName: String,
+    var listName: String,
     val tasks: ArrayList<Task>,
     var isStandupList: Boolean
 )
 
-data class ListCreationRequestBody(
+data class CreateOrUpdateListRequestBody(
     val listName: String
 )
 

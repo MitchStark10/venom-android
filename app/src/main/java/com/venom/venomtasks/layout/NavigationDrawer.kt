@@ -82,6 +82,9 @@ fun NavigationDrawer(
     val view = LocalView.current;
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val lazyListState = rememberLazyListState()
+    var titleText by remember {
+        mutableStateOf(getTitleText())
+    }
     val reorderableLazyListState =
         rememberReorderableLazyListState(
             lazyListState = lazyListState
@@ -135,6 +138,7 @@ fun NavigationDrawer(
                         GlobalState.selectedList = updatedList
                     }
                 }
+
                 isLoading = false
             }
         })
@@ -156,6 +160,10 @@ fun NavigationDrawer(
                 }
             }
         })
+    }
+
+    LaunchedEffect(GlobalState.selectedList?.listName, GlobalState.selectedView) {
+        titleText = getTitleText()
     }
 
     ModalNavigationDrawer(
@@ -283,7 +291,7 @@ fun NavigationDrawer(
                     )
                 },
                     selected = false,
-                    onClick = { GlobalState.openModal = Modal.LIST_MODAL }
+                    onClick = { GlobalState.openModal = Modal.CREATE_LIST_MODAL }
                 )
                 Divider()
 
@@ -311,7 +319,7 @@ fun NavigationDrawer(
                 TopAppBar(
                     title = {
                         Text(
-                            getTitleText(),
+                            titleText,
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -344,6 +352,14 @@ fun NavigationDrawer(
                             DropdownMenu(
                                 expanded = isSettingsMenuExpanded,
                                 onDismissRequest = { isSettingsMenuExpanded = false }) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text("Rename List")
+                                    }, onClick = {
+                                        GlobalState.openModal = Modal.UPDATE_LIST_MODAL
+                                        isSettingsMenuExpanded = false
+                                    }
+                                )
                                 DropdownMenuItem(text = {
                                     Text("Delete List")
                                 }, onClick = {

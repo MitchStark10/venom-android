@@ -10,7 +10,8 @@ import com.venom.venomtasks.utils.getSharedPreferences
 
 enum class Modal {
     TASK_MODAL,
-    LIST_MODAL,
+    CREATE_LIST_MODAL,
+    UPDATE_LIST_MODAL,
     TAG_MODAL,
     DELETE_LIST_MODAL,
     NONE

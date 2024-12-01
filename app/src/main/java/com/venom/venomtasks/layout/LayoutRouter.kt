@@ -54,7 +54,8 @@ fun LayoutRouter() {
 
                 when (GlobalState.openModal) {
                     Modal.TASK_MODAL -> TaskModal()
-                    Modal.LIST_MODAL -> ListModal()
+                    Modal.CREATE_LIST_MODAL -> ListModal(false)
+                    Modal.UPDATE_LIST_MODAL -> ListModal(true)
                     Modal.TAG_MODAL -> TagModal()
                     Modal.DELETE_LIST_MODAL -> DeleteListModal()
                     else -> Unit

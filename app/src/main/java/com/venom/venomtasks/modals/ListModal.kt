@@ -1,5 +1,6 @@
 package com.venom.venomtasks.modals
 
+import android.provider.Settings.Global
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +32,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.venom.venomtasks.classes.ListCreationRequestBody
+import com.venom.venomtasks.classes.CreateOrUpdateListRequestBody
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.GlobalState
@@ -43,11 +44,11 @@ import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
-fun ListModal() {
+fun ListModal(isEditing: Boolean) {
     val toastContext = LocalContext.current
 
     var listName by remember {
-        mutableStateOf("")
+        mutableStateOf(if (isEditing) GlobalState.selectedList!!.listName else "")
     }
     var isProcessing by remember {
         mutableStateOf(false)
@@ -61,13 +62,35 @@ fun ListModal() {
     fun handleSubmitList() {
         isProcessing = true;
         val listService = RetrofitBuilder.getRetrofit().create(ListService::class.java);
-        val requestBody = ListCreationRequestBody(listName)
+        val requestBody = CreateOrUpdateListRequestBody(listName)
         listService.createList(requestBody).enqueue(object : Callback<Unit> {
             override fun onFailure(call: Call<Unit>, t: Throwable) {
                 isProcessing = false;
                 Toast.makeText(
                     toastContext,
-                    "Unable to mark task as completed",
+                    "Unable to create list",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                RefreshCounter.refreshListCount++
+                GlobalState.openModal = Modal.NONE
+            }
+        })
+    }
+
+    fun handleUpdateList() {
+        isProcessing = true;
+        val listService = RetrofitBuilder.getRetrofit().create(ListService::class.java);
+        GlobalState.selectedList!!.listName = listName
+        listService.updateList(GlobalState.selectedList!!.id, GlobalState.selectedList!!).enqueue(object : Callback<Unit> {
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                isProcessing = false;
+                Toast.makeText(
+                    toastContext,
+                    "Unable to update list",
                     Toast.LENGTH_SHORT
                 )
                     .show()
@@ -106,7 +129,7 @@ fun ListModal() {
                     )
 
                     Button(
-                        onClick = { handleSubmitList() },
+                        onClick = { if (isEditing) handleUpdateList() else handleSubmitList() },
                         enabled = !isProcessing && listName.isNotEmpty(),
                         modifier = Modifier.align(alignment = Alignment.End)
                     ) {
