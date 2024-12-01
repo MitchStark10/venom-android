@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Divider
@@ -185,7 +186,7 @@ fun NavigationDrawer(
                 )
                 NavigationDrawerItem(
                     label = {
-                        NavigationDrawerRow(text = "Standup", icon = Icons.Filled.DateRange)
+                        NavigationDrawerRow(text = "Standup", icon = Icons.Filled.Star)
                     },
                     selected = GlobalState.selectedView == Views.STANDUP,
                     onClick = {
@@ -346,29 +347,8 @@ fun NavigationDrawer(
                                 DropdownMenuItem(text = {
                                     Text("Delete List")
                                 }, onClick = {
-                                    val listService = RetrofitBuilder.getRetrofit()
-                                        .create(ListService::class.java);
-                                    listService.deleteList(GlobalState.selectedList!!.id)
-                                        .enqueue(object : Callback<Unit> {
-                                            override fun onFailure(call: Call<Unit>, t: Throwable) {
-                                                Toast.makeText(
-                                                    toastContext,
-                                                    "Unable to delete list",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-
-                                            override fun onResponse(
-                                                call: Call<Unit>,
-                                                response: Response<Unit>
-                                            ) {
-                                                isSettingsMenuExpanded = false;
-                                                GlobalState.selectedView = Views.TODAY;
-                                                GlobalState.selectedList = null;
-                                                RefreshCounter.refreshListCount++;
-                                            }
-                                        })
-
+                                    GlobalState.openModal = Modal.DELETE_LIST_MODAL
+                                    isSettingsMenuExpanded = false
                                 })
                             }
                         }

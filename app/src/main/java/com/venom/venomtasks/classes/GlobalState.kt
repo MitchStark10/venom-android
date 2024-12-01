@@ -12,6 +12,7 @@ enum class Modal {
     TASK_MODAL,
     LIST_MODAL,
     TAG_MODAL,
+    DELETE_LIST_MODAL,
     NONE
 }
 
