@@ -59,6 +59,8 @@ fun ListModal(isEditing: Boolean) {
         focusRequester.requestFocus()
     }
 
+    val actionVerb = if (isEditing) "Update" else "Create"
+
     fun handleSubmitList() {
         isProcessing = true;
         val listService = RetrofitBuilder.getRetrofit().create(ListService::class.java);
@@ -68,7 +70,7 @@ fun ListModal(isEditing: Boolean) {
                 isProcessing = false;
                 Toast.makeText(
                     toastContext,
-                    "Unable to create list",
+                    "Unable to ${actionVerb.lowercase()} list",
                     Toast.LENGTH_SHORT
                 )
                     .show()
@@ -117,7 +119,7 @@ fun ListModal(isEditing: Boolean) {
                     .padding(16.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SectionHeader(text = "Create List")
+                    SectionHeader(text = "$actionVerb List")
                     OutlinedTextField(
                         value = listName,
                         onValueChange = { listName = it },
@@ -133,7 +135,7 @@ fun ListModal(isEditing: Boolean) {
                         enabled = !isProcessing && listName.isNotEmpty(),
                         modifier = Modifier.align(alignment = Alignment.End)
                     ) {
-                        var buttonText = "Create List"
+                        var buttonText = "$actionVerb List"
 
                         if (isProcessing) {
                             buttonText = "Processing..."
