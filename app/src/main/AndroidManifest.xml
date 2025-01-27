@@ -14,6 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Venom"
+        android:enableOnBackInvokedCallback="true"
+        android:autofillHints="username,password"
         tools:targetApi="34">
         <activity
             android:name=".MainActivity"

@@ -14,8 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillNode
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalAutofill
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -25,16 +29,25 @@ import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
 import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
+import com.venom.venomtasks.services.autofill
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginForm(handleSuccessfulLogin: (String) -> Unit, showSignUp: () -> Unit) {
-    var userEmail by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
+fun LoginForm(
+    handleSuccessfulLogin: (String) -> Unit,
+    userEmail: String,
+    userPassword: String,
+    onUserEmailChange: (String) -> Unit,
+    onUserPasswordChange: (String) -> Unit,
+    showSignUp: () -> Unit
+) {
     var isProcessingApiCall by remember { mutableStateOf(false) }
     var loginFailureMessage by remember { mutableStateOf("") }
+
+    val autofill = LocalAutofill.current
 
     fun handleButtonClick() {
         val userService: UserService =
@@ -75,14 +88,18 @@ fun LoginForm(handleSuccessfulLogin: (String) -> Unit, showSignUp: () -> Unit) {
         Text("Venom", fontSize = 30.sp, fontWeight = FontWeight.Bold)
         OutlinedTextField(
             value = userEmail,
-            onValueChange = { userEmail = it },
-            label = { Text("Email") })
+            onValueChange = { onUserEmailChange(it) },
+            label = { Text("Email") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            modifier = Modifier.autofill(listOf(AutofillType.EmailAddress), onFill = onUserEmailChange)
+        )
         OutlinedTextField(
             value = userPassword,
-            onValueChange = { userPassword = it },
+            onValueChange = { onUserPasswordChange(it) },
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.autofill(listOf(AutofillType.Password), onFill = onUserPasswordChange)
         )
         Button(
             onClick = { handleButtonClick() },
