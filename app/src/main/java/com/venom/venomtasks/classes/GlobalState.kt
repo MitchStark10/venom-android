@@ -36,5 +36,6 @@ class GlobalState {
         var selectedTag: Tag? by mutableStateOf(null)
         val lists = mutableStateListOf<List>()
         val tags = mutableStateListOf<Tag>()
+        var settingsResponse by mutableStateOf<SettingsResponse?>(null)
     }
 }

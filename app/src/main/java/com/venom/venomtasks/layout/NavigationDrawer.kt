@@ -59,12 +59,14 @@ import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.ReorderListsBody
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.Tag
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CenteredLoader
 import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TagService
+import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.utils.getTitleText
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -73,6 +75,7 @@ import retrofit2.Response
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun NavigationDrawer(
@@ -100,6 +103,7 @@ fun NavigationDrawer(
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
+    val currentContext = LocalContext.current
 
     var isLoading by remember { mutableStateOf(true) }
 
@@ -143,7 +147,7 @@ fun NavigationDrawer(
             }
         })
 
-        val tagService: TagService = RetrofitBuilder.getRetrofit().create(TagService::class.java);
+        val tagService: TagService = RetrofitBuilder.getRetrofit().create(TagService::class.java)
         tagService.getTags().enqueue(object: Callback<ArrayList<Tag>> {
             override fun onFailure(call: Call<ArrayList<Tag>>, t: Throwable) {
                 println("Received error when attempting to retrieve tags: $t")
@@ -164,6 +168,28 @@ fun NavigationDrawer(
 
     LaunchedEffect(GlobalState.selectedList?.listName, GlobalState.selectedView) {
         titleText = getTitleText()
+    }
+
+    LaunchedEffect(Unit) {
+        val userService = RetrofitBuilder.getRetrofit().create(UserService::class.java)
+        userService.getSettings().enqueue(object: Callback<SettingsResponse> {
+            override fun onFailure(call: Call<SettingsResponse>, t: Throwable) {
+                Toast.makeText(
+                    currentContext,
+                    "Unable to fetch settings",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+
+            override fun onResponse(
+                call: Call<SettingsResponse>,
+                response: Response<SettingsResponse>
+               ) {
+                val settingsResponse = response.body();
+                GlobalState.settingsResponse = settingsResponse
+            }
+        })
     }
 
     ModalNavigationDrawer(
@@ -194,7 +220,7 @@ fun NavigationDrawer(
                 )
                 NavigationDrawerItem(
                     label = {
-                        NavigationDrawerRow(text = "Standup", icon = Icons.Filled.Star)
+                        NavigationDrawerRow(text = "Daily Report", icon = Icons.Filled.Star)
                     },
                     selected = GlobalState.selectedView == Views.STANDUP,
                     onClick = {

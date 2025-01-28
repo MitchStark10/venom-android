@@ -1,5 +1,6 @@
 package com.venom.venomtasks.layout
 
+import android.provider.Settings.Global
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,6 +74,11 @@ fun SettingsView() {
 
             override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
                 Toast.makeText(currentContext, "Successfully updated settings", Toast.LENGTH_SHORT).show()
+
+                if (GlobalState.settingsResponse != null) {
+                    GlobalState.settingsResponse!!.autoDeleteTasks = updatedAutoDeleteTasksValue
+                    GlobalState.settingsResponse!!.dailyReportIgnoreWeekends = updatedDailyReportIgnoreWeekends
+                }
             }
         })
     }
@@ -91,6 +97,7 @@ fun SettingsView() {
                 response: Response<SettingsResponse>
             ) {
                 val settingsResponse = response.body()
+                GlobalState.settingsResponse = settingsResponse
 
                 if (settingsResponse == null) {
                     Toast.makeText(

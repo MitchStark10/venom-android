@@ -9,8 +9,8 @@ enum class AutoDeleteOptions(val value: String) {
 
 data class SettingsResponse(
     val email: String,
-    val autoDeleteTasks: String,
-    val dailyReportIgnoreWeekends: Boolean
+    var autoDeleteTasks: String,
+    var dailyReportIgnoreWeekends: Boolean
 )
 
 data class EditSettingsBody(

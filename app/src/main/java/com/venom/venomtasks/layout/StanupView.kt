@@ -22,6 +22,8 @@ import com.venom.venomtasks.utils.getDateStringFromMillis
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.util.Date
 import java.util.TimeZone
 
@@ -29,23 +31,31 @@ import java.util.TimeZone
 fun StandupView() {
 
     var isLoading by remember { mutableStateOf(true) }
-    var tasks = remember {
+    val tasks = remember {
         mutableStateListOf<Task>()
     }
+
+    val isMonday = LocalDate.now().dayOfWeek == DayOfWeek.MONDAY
+
+    print("testing ${getDateStringFromMillis(
+        Date().time,
+        "yyyy-MM-dd",
+        TimeZone.getDefault().id
+    )}")
 
     LaunchedEffect(GlobalState.selectedView, RefreshCounter.refreshListCount) {
         if (GlobalState.selectedView === Views.STANDUP)     {
             val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
             taskService.getStandupTasks(
-                "11/15/2024"
-//                getDateStringFromMillis(
-//                    Date().time,
-//                    "yyyy-MM-dd",
-//                    TimeZone.getDefault().id
-//                )
+                getDateStringFromMillis(
+                    Date().time,
+                    "yyyy-MM-dd",
+                    TimeZone.getDefault().id
+                )
             ).enqueue(object : Callback<StandupResponse> {
                 override fun onFailure(call: Call<StandupResponse>, t: Throwable) {
                     isLoading = false
+                    print("Failed to load standup $t")
                 }
 
                 override fun onResponse(
@@ -53,9 +63,13 @@ fun StandupView() {
                     response: Response<StandupResponse>
                 ) {
                     isLoading = false
+                    println("standup response ${response.body()}")
+
+                    tasks.clear()
+
                     response.body()?.yesterday?.map(fun(task): Task {
-                        task.type = "Yesterday"
-                        return task;
+                        task.type = if (GlobalState.settingsResponse?.dailyReportIgnoreWeekends == true && isMonday) "Friday" else "Yesterday"
+                        return task
                     }).let {
                         if (it != null) {
                             tasks.addAll(it)
@@ -64,7 +78,7 @@ fun StandupView() {
 
                     response.body()?.today?.map(fun(task): Task {
                         task.type = "Today"
-                        return task;
+                        return task
                     }).let {
                         if (it != null) {
                             tasks.addAll(it)
@@ -73,7 +87,7 @@ fun StandupView() {
 
                     response.body()?.blocked?.map(fun(task): Task {
                         task.type = "Blocked"
-                        return task;
+                        return task
                     }).let {
                         if (it != null) {
                             tasks.addAll(it)
