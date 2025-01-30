@@ -76,6 +76,8 @@ fun TaskModal() {
             GlobalState.selectedTask!!.dueDate!!.slice(5..6) + "/" +
                     GlobalState.selectedTask!!.dueDate!!.slice(8..9) + "/" +
                     GlobalState.selectedTask!!.dueDate!!.slice(0..3)
+    } else if (GlobalState.selectedTask != null) {
+        initialTaskDate = null;
     }
 
 

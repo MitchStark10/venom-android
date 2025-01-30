@@ -78,10 +78,21 @@ fun SignUpForm(
                 if (response.isSuccessful && responseBody?.token != null && responseBody.token.isNotEmpty()) {
                     handleSuccessfulLogin(responseBody.token)
                 } else {
+                    val errorBody = response.errorBody()
+                    val errorConverter = RetrofitBuilder.getRetrofit().responseBodyConverter<LoginResponse>(
+                        LoginResponse::class.java, arrayOfNulls(0)
+                    )
+
+                    val errorResponse = try {
+                        errorConverter.convert(errorBody!!)
+                    } catch (e: Exception) {
+                        println("Error converting error response: $e")
+                        null
+                    }
                     println("Did not receive token: " + response.code())
-                    println("Further details: $responseBody")
-                    signUpFailureMessage = if (!responseBody?.error.isNullOrEmpty()) {
-                        responseBody!!.error!!
+                    println("Further details: $errorResponse")
+                    signUpFailureMessage = if (!errorResponse?.error.isNullOrEmpty()) {
+                        errorResponse!!.error!!
                     } else {
                         "An unknown error occurred"
                     }
