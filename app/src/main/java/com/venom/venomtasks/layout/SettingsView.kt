@@ -31,6 +31,7 @@ import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
+import com.venom.venomtasks.components.LinkDisplay
 import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.SetLoginState
@@ -129,7 +130,7 @@ fun SettingsView() {
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            text = "Standup Settings",
+            text = "Daily Report Settings",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 5.dp)
@@ -200,5 +201,13 @@ fun SettingsView() {
             }
             Text("Currently signed-in as: $email")
         }
+
+        Divider()
+        Text(
+            "You can also use Venom Tasks on the web at:",
+            modifier = Modifier.padding(top = 5.dp)
+        )
+
+        LinkDisplay("https://venomtasks.com", "https://venomtasks.com")
     }
 }
