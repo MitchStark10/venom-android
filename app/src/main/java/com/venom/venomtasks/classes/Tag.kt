@@ -14,5 +14,10 @@ data class TagCreationRequestBody(
 data class Tag (
     val id: Int,
     var tagName: String,
-    var tagColor: String
+    var tagColor: String,
+    var order: Int
+)
+
+data class ReorderTagsBody(
+    val tags: ArrayList<Tag>
 )

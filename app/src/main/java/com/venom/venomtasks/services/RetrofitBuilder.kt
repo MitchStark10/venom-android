@@ -1,6 +1,7 @@
 package com.venom.venomtasks.services
 
 import com.google.gson.GsonBuilder
+import com.venom.venomtasks.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -31,17 +32,8 @@ class RetrofitBuilder {
             okhttpClientBuilder.readTimeout(10, TimeUnit.SECONDS)
             okhttpClientBuilder.connectTimeout(5, TimeUnit.SECONDS)
 
-
-//            if (BuildConfig.DEBUG) {
-//                val interceptor = HttpLoggingInterceptor()
-//                interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)
-//                builder.addInterceptor(interceptor)
-//            }
-
             if (!accessToken.isNullOrEmpty()) {
-                println("Adding interceptor for access token")
                 okhttpClientBuilder.addInterceptor { chain ->
-                    println("In interceptor with token: $accessToken")
                     val request: Request =
                         chain.request().newBuilder()
                             .addHeader("Authorization", "Bearer $accessToken").build()
@@ -52,7 +44,7 @@ class RetrofitBuilder {
             val client: OkHttpClient = okhttpClientBuilder.build()
 
             this.instance = Builder()
-                .baseUrl("https://venom-backend-pjv4.onrender.com")
+                .baseUrl(BuildConfig.API_URL)
                 .addConverterFactory(
                     GsonConverterFactory.create(
                         GsonBuilder().serializeNulls().create()

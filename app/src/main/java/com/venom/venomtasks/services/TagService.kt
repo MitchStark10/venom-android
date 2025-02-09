@@ -1,5 +1,6 @@
 package com.venom.venomtasks.services
 
+import com.venom.venomtasks.classes.ReorderTagsBody
 import com.venom.venomtasks.classes.Tag
 import com.venom.venomtasks.classes.TagCreationRequestBody
 import retrofit2.Call
@@ -19,6 +20,9 @@ interface TagService {
 
     @PUT("/tags/{id}")
     fun updateTag(@Path("id") id: Int, @Body tag: Tag): Call<Unit>
+
+    @PUT("/tags/reorder")
+    fun reorderTags(@Body tags: ReorderTagsBody): Call<Unit>
 
     @DELETE("/tags/{id}")
     fun deleteTag(@Path("id") id: Int): Call<Unit>

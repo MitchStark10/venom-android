@@ -50,7 +50,12 @@ val tagColorMap = mapOf(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TagPill(tag: Tag, onClick: () -> Unit = { /* noop */  }, allowDeleteTag: Boolean = false) {
+fun TagPill(
+    tag: Tag,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = { /* noop */  },
+    allowDeleteTag: Boolean = false,
+) {
     var showContextMenu by remember {
         mutableStateOf(false)
     }
@@ -58,33 +63,18 @@ fun TagPill(tag: Tag, onClick: () -> Unit = { /* noop */  }, allowDeleteTag: Boo
         MutableInteractionSource()
     }
     val containerColor = tagColorMap[tag.tagColor] ?: Color.Blue
-    val haptics = LocalHapticFeedback.current
     val toastContext = LocalContext.current
 
-    Column {
+    Column ( modifier = modifier ){
         Box {
             SuggestionChip(
-                onClick = { },
+                onClick = onClick,
                 label = { Text(tag.tagName) },
                 colors = SuggestionChipDefaults.suggestionChipColors(containerColor = containerColor, labelColor = Color.White ),
                 border = SuggestionChipDefaults.suggestionChipBorder(borderColor = containerColor),
                 interactionSource = chipInteractionSource
             )
-            Box(modifier = Modifier
-                .matchParentSize()
-                .combinedClickable(
-                    onClick = onClick,
-                    onLongClick = {
-                        if (allowDeleteTag) {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            showContextMenu = true
-                        }
-                    },
-                    interactionSource = chipInteractionSource,
-                    indication = null
-                ))
         }
-
 
         DropdownMenu(
             expanded = showContextMenu,
