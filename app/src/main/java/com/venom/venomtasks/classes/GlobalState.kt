@@ -14,6 +14,7 @@ enum class Modal {
     UPDATE_LIST_MODAL,
     TAG_MODAL,
     DELETE_LIST_MODAL,
+    DELETE_TAG_MODAL,
     NONE
 }
 

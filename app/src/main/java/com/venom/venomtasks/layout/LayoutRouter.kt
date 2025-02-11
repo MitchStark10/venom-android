@@ -18,6 +18,7 @@ import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.Views
 import com.venom.venomtasks.modals.DeleteListModal
+import com.venom.venomtasks.modals.DeleteTagModal
 import com.venom.venomtasks.modals.TagModal
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -57,6 +58,7 @@ fun LayoutRouter() {
                     Modal.CREATE_LIST_MODAL -> ListModal(false)
                     Modal.UPDATE_LIST_MODAL -> ListModal(true)
                     Modal.TAG_MODAL -> TagModal()
+                    Modal.DELETE_TAG_MODAL -> DeleteTagModal()
                     Modal.DELETE_LIST_MODAL -> DeleteListModal()
                     else -> Unit
                 }

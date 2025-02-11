@@ -1,5 +1,6 @@
 package com.venom.venomtasks.login
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
 import com.venom.venomtasks.services.UserService
@@ -69,8 +71,8 @@ fun LoginForm(
                 if (response.isSuccessful && responseBody?.token != null && responseBody.token.isNotEmpty()) {
                     handleSuccessfulLogin(responseBody.token)
                 } else {
-                    println("Did not receive token: " + response.code())
-                    println("Further details: " + response.body())
+                    Log.e(LogTag.LOGIN_FORM, "Did not receive token: " + response.code())
+                    Log.e(LogTag.LOGIN_FORM, "Further details: " + response.body())
                     loginFailureMessage = "Email or password is incorrect"
                 }
 

@@ -122,7 +122,6 @@ fun TaskModal() {
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             formattedDateTime = sdf.format(datePickerState.selectedDateMillis)
         }
-        println("formattedDateTime: $formattedDateTime")
 
         val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java);
 

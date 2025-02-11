@@ -2,6 +2,7 @@ package com.venom.venomtasks.layout
 
 import android.os.Build
 import android.provider.Settings.Global
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -59,6 +60,7 @@ import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.ReorderListsBody
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.Tag
 import com.venom.venomtasks.classes.Views
@@ -120,7 +122,7 @@ fun NavigationDrawer(
             RetrofitBuilder.getRetrofit().create(ListService::class.java)
         listService.getLists().enqueue(object : Callback<ArrayList<List>> {
             override fun onFailure(call: Call<ArrayList<List>>, t: Throwable) {
-                println("Received error when attempting to retrieve lists: $t")
+                Log.e(LogTag.NAVIGATION_DRAWER, "Received error when attempting to retrieve lists: $t")
                 isLoading = false
             }
 
@@ -128,10 +130,9 @@ fun NavigationDrawer(
                 call: Call<ArrayList<List>>,
                 response: Response<ArrayList<List>>
             ) {
-                println("Returned response: ${response.code()}")
                 val listsResponseBody = response.body()
                 if (response.isSuccessful && !listsResponseBody.isNullOrEmpty()) {
-                    println("Successfully setting lists: " + listsResponseBody.size)
+                    Log.i(LogTag.NAVIGATION_DRAWER, "Successfully setting lists: " + listsResponseBody.size)
                     GlobalState.lists.clear()
                     GlobalState.lists.addAll(listsResponseBody)
 
@@ -150,7 +151,7 @@ fun NavigationDrawer(
         val tagService: TagService = RetrofitBuilder.getRetrofit().create(TagService::class.java)
         tagService.getTags().enqueue(object: Callback<ArrayList<Tag>> {
             override fun onFailure(call: Call<ArrayList<Tag>>, t: Throwable) {
-                println("Received error when attempting to retrieve tags: $t")
+                Log.e(LogTag.NAVIGATION_DRAWER, "Received error when attempting to retrieve tags: $t")
             }
 
             override fun onResponse(

@@ -1,5 +1,6 @@
 package com.venom.venomtasks.layout
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.venom.venomtasks.classes.GlobalState
 import com.venom.venomtasks.classes.GroupBy
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.StandupResponse
 import com.venom.venomtasks.classes.Task
@@ -37,12 +39,6 @@ fun StandupView() {
 
     val isMonday = LocalDate.now().dayOfWeek == DayOfWeek.MONDAY
 
-    print("testing ${getDateStringFromMillis(
-        Date().time,
-        "yyyy-MM-dd",
-        TimeZone.getDefault().id
-    )}")
-
     LaunchedEffect(GlobalState.selectedView, RefreshCounter.refreshListCount) {
         if (GlobalState.selectedView === Views.STANDUP)     {
             val taskService = RetrofitBuilder.getRetrofit().create(TaskService::class.java)
@@ -55,7 +51,7 @@ fun StandupView() {
             ).enqueue(object : Callback<StandupResponse> {
                 override fun onFailure(call: Call<StandupResponse>, t: Throwable) {
                     isLoading = false
-                    print("Failed to load standup $t")
+                    Log.e(LogTag.STANDUP_VIEW, "Failed to load standup $t")
                 }
 
                 override fun onResponse(
@@ -63,7 +59,7 @@ fun StandupView() {
                     response: Response<StandupResponse>
                 ) {
                     isLoading = false
-                    println("standup response ${response.body()}")
+                    Log.i(LogTag.STANDUP_VIEW, "standup response ${response.body()}")
 
                     tasks.clear()
 

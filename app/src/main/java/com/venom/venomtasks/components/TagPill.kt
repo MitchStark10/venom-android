@@ -1,6 +1,7 @@
 package com.venom.venomtasks.components
 
 import android.provider.Settings.Global
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.Tag
 import com.venom.venomtasks.classes.Views
@@ -54,16 +56,12 @@ fun TagPill(
     tag: Tag,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = { /* noop */  },
-    allowDeleteTag: Boolean = false,
 ) {
-    var showContextMenu by remember {
-        mutableStateOf(false)
-    }
+
     val chipInteractionSource = remember {
         MutableInteractionSource()
     }
     val containerColor = tagColorMap[tag.tagColor] ?: Color.Blue
-    val toastContext = LocalContext.current
 
     Column ( modifier = modifier ){
         Box {
@@ -74,38 +72,6 @@ fun TagPill(
                 border = SuggestionChipDefaults.suggestionChipBorder(borderColor = containerColor),
                 interactionSource = chipInteractionSource
             )
-        }
-
-        DropdownMenu(
-            expanded = showContextMenu,
-            onDismissRequest = { showContextMenu = false }) {
-            DropdownMenuItem(text = {
-                Text("Delete Tag")
-            }, onClick = {
-                val tagService = RetrofitBuilder.getRetrofit()
-                    .create(TagService::class.java);
-                tagService.deleteTag(tag.id)
-                    .enqueue(object : Callback<Unit> {
-                        override fun onFailure(call: Call<Unit>, t: Throwable) {
-                            Toast.makeText(
-                                toastContext,
-                                "Unable to delete tag",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        override fun onResponse(
-                            call: Call<Unit>,
-                            response: Response<Unit>
-                        ) {
-                            if (response.isSuccessful) {
-                                RefreshCounter.refreshListCount++;
-                            } else {
-                                println("Response: $response")
-                            }
-                        }
-                    })
-            })
         }
     }
 }

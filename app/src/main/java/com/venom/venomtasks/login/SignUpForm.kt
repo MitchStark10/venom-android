@@ -1,5 +1,6 @@
 package com.venom.venomtasks.login
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
 import com.venom.venomtasks.services.UserService
@@ -86,11 +88,12 @@ fun SignUpForm(
                     val errorResponse = try {
                         errorConverter.convert(errorBody!!)
                     } catch (e: Exception) {
-                        println("Error converting error response: $e")
+                        Log.e(LogTag.SIGNUP_FORM, "Error converting error response: $e")
                         null
                     }
-                    println("Did not receive token: " + response.code())
-                    println("Further details: $errorResponse")
+
+                    Log.e(LogTag.SIGNUP_FORM, "Did not receive token: " + response.code())
+                    Log.e(LogTag.SIGNUP_FORM, "Further details: $errorResponse")
                     signUpFailureMessage = if (!errorResponse?.error.isNullOrEmpty()) {
                         errorResponse!!.error!!
                     } else {

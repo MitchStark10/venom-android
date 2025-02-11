@@ -2,6 +2,7 @@ package com.venom.venomtasks.components
 
 import android.annotation.SuppressLint
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import com.venom.venomtasks.classes.GroupBy
 import com.venom.venomtasks.classes.ListColumnItem
+import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.classes.TaskReorderBody
@@ -76,19 +78,15 @@ fun PageWithGroupedTasks(
 
                 var neighboringTask: ListColumnItem? = null
                 if (to.index > 0) {
-                    println("Checking before item")
                     val neighborItemAbove = get(to.index - 1)
                     if (neighborItemAbove.task != null) {
-                        println("using before item")
                         neighboringTask = neighborItemAbove
                     }
                 }
 
                 if (neighboringTask == null && to.index < size - 1) {
-                    println("checking after item")
                     val neighborItemBelow = get(to.index + 1)
                     if (neighborItemBelow.task != null) {
-                        println("using after item")
                         neighboringTask = neighborItemBelow
                     }
                 }
@@ -98,7 +96,6 @@ fun PageWithGroupedTasks(
                     itemToUpdate.task.listViewOrder = to.index
 
                     if (neighboringTask?.task != null) {
-                        println("Updating due date")
                         itemToUpdate.task.dueDate = neighboringTask.task!!.dueDate
                     }
                 }
@@ -205,7 +202,7 @@ fun PageWithGroupedTasks(
                                                 RefreshCounter.refreshListCount++
                                                 return
                                             }
-                                            println("Unsuccessful reorder response: " + response.body())
+                                            Log.e(LogTag.PAGE_WITH_GROUPED_TASKS, "Unsuccessful reorder response: " + response.body())
                                             Toast.makeText(
                                                 toastContext,
                                                 "Unable to save reordered items.",
@@ -215,6 +212,7 @@ fun PageWithGroupedTasks(
                                         }
 
                                         override fun onFailure(call: Call<Unit>, t: Throwable) {
+                                            Log.e(LogTag.PAGE_WITH_GROUPED_TASKS, "Failed API call to reorder", t)
                                             Toast.makeText(
                                                 toastContext,
                                                 "Unable to save reordered items.",

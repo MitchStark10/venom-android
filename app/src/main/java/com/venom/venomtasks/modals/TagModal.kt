@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -148,19 +150,32 @@ fun TagModal() {
 
                     CustomDropdown(label = "Color", value = arrayListOf(tagColor), dropdownOptions = tagColorOptions, onChange = { tagColor = it.id as String })
 
-                    Button(
-                        onClick = { handleCreateTag() },
-                        enabled = !isProcessing && tagName.isNotEmpty(),
-                        modifier = Modifier.align(alignment = Alignment.End)
-                    ) {
-                        var buttonText = contextSpecificHeader
-
-                        if (isProcessing) {
-                            buttonText = "Processing..."
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Button(
+                            onClick = {
+                                GlobalState.openModal = Modal.DELETE_TAG_MODAL
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red), // Make it red for delete
+                        ) {
+                            Text("Delete Tag")
                         }
+                        Button(
+                            onClick = { handleCreateTag() },
+                            enabled = !isProcessing && tagName.isNotEmpty(),
+                        ) {
+                            var buttonText = contextSpecificHeader
 
-                        Text(buttonText)
+                            if (isProcessing) {
+                                buttonText = "Processing..."
+                            }
+
+                            Text(buttonText)
+                        }
                     }
+
                 }
             }
         }
