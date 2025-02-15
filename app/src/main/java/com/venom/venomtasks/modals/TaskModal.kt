@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -188,9 +189,14 @@ fun TaskModal() {
                     .background(MaterialTheme.colorScheme.background)
                     .width(LocalConfiguration.current.screenWidthDp.dp - 10.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.verticalScroll(
-                    rememberScrollState()
-                ).padding(8.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .heightIn(max = LocalConfiguration.current.screenHeightDp.dp - 40.dp)
+                        .verticalScroll(
+                            rememberScrollState()
+                        ).padding(10.dp) // Must check Samsung devices before changing this value
+                ) {
                     SectionHeader(text = if (GlobalState.selectedTask == null)  "Create Task" else "Edit Task")
                     CustomDropdown(
                         label = "List",
