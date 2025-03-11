@@ -17,3 +17,7 @@ data class EditSettingsBody(
     val autoDeleteTasks: String,
     val dailyReportIgnoreWeekends: Boolean
 )
+
+data class RequestPasswordResetBody(
+    val email: String
+)

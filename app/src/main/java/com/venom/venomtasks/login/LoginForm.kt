@@ -1,6 +1,7 @@
 package com.venom.venomtasks.login
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +23,7 @@ import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofill
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.LoginResponse
+import com.venom.venomtasks.classes.RequestPasswordResetBody
 import com.venom.venomtasks.classes.User
 import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
@@ -48,10 +52,48 @@ fun LoginForm(
 ) {
     var isProcessingApiCall by remember { mutableStateOf(false) }
     var loginFailureMessage by remember { mutableStateOf("") }
+    var isResettingPassword by remember { mutableStateOf(false) }
+    val toastContext = LocalContext.current
 
-    val autofill = LocalAutofill.current
+    val isLoginEnabled = userEmail.isNotEmpty() && userPassword.isNotEmpty()
+    val isResetPasswordEnabled = userEmail.isNotEmpty()
+    val isSubmissionEnabled = if (isResettingPassword) isResetPasswordEnabled else isLoginEnabled
 
-    fun handleButtonClick() {
+
+    fun handleSubmitResetPasswordRequest() {
+        if (userEmail == "") {
+            loginFailureMessage = "Email is required"
+            return
+        }
+
+        val errorToast = Toast.makeText(toastContext, "Unable to request a new password. Please try again later.", Toast.LENGTH_SHORT)
+
+        isProcessingApiCall = true
+        loginFailureMessage = ""
+        val userService: UserService =
+            RetrofitBuilder.getRetrofit().create(UserService::class.java)
+        val requestBody = RequestPasswordResetBody(email = userEmail)
+        userService.requestPasswordResetEmail(requestBody).enqueue(object: Callback<Unit> {
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                isProcessingApiCall = false
+                errorToast.show()
+                Log.e("Failure from request password reset endpoint", t.toString())
+            }
+
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(toastContext, "Please check your email to reset your password", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.e("Unexpected response from request password reset endpoint {" + response.code() + "}: " + response.body(), response.errorBody().toString())
+                    errorToast.show()
+                }
+
+                isProcessingApiCall = false
+            }
+        })
+    }
+
+    fun handleSubmitLogin() {
         val userService: UserService =
             RetrofitBuilder.getRetrofit().create(UserService::class.java)
         isProcessingApiCall = true
@@ -79,7 +121,14 @@ fun LoginForm(
                 isProcessingApiCall = false
             }
         })
+    }
 
+    fun handleButtonClick() {
+        if (isResettingPassword) {
+            return handleSubmitResetPasswordRequest()
+        }
+
+        handleSubmitLogin()
     }
 
     Column(
@@ -95,19 +144,24 @@ fun LoginForm(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.autofill(listOf(AutofillType.EmailAddress), onFill = onUserEmailChange)
         )
-        OutlinedTextField(
-            value = userPassword,
-            onValueChange = { onUserPasswordChange(it) },
-            label = { Text("Password") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.autofill(listOf(AutofillType.Password), onFill = onUserPasswordChange)
-        )
+
+        if (!isResettingPassword) {
+            OutlinedTextField(
+                value = userPassword,
+                onValueChange = { onUserPasswordChange(it) },
+                label = { Text("Password") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.autofill(listOf(AutofillType.Password), onFill = onUserPasswordChange)
+            )
+        }
+
         Button(
             onClick = { handleButtonClick() },
-            enabled = !isProcessingApiCall && userEmail.isNotEmpty() && userPassword.isNotEmpty()
+            enabled = !isProcessingApiCall && isSubmissionEnabled
         ) {
-            var textForButton = "Log In"
+            var textForButton = if (isResettingPassword) "Reset Password" else "Log In"
+
             if (isProcessingApiCall) {
                 textForButton = "Processing..."
             }
@@ -116,6 +170,14 @@ fun LoginForm(
 
         if (loginFailureMessage.isNotEmpty()) {
             Text(loginFailureMessage, color = Color.Red)
+        }
+
+        TextButton(onClick = { isResettingPassword = !isResettingPassword }) {
+            if (isResettingPassword) {
+                Text("Remembered your password? Click here to return back to login")
+            } else {
+                Text("Forgot your password? Click here to reset it.")
+            }
         }
         Text("Or")
         OutlinedButton(onClick = { showSignUp() },) {

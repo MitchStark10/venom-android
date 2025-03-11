@@ -2,6 +2,7 @@ package com.venom.venomtasks.services
 
 import com.venom.venomtasks.classes.EditSettingsBody
 import com.venom.venomtasks.classes.LoginResponse
+import com.venom.venomtasks.classes.RequestPasswordResetBody
 import com.venom.venomtasks.classes.SettingsResponse
 import com.venom.venomtasks.classes.User
 import retrofit2.Call
@@ -22,5 +23,8 @@ interface UserService {
 
     @PUT("settings")
     fun editSettings(@Body editSettingsBody: EditSettingsBody): Call<Unit>
+
+    @POST("users/request_password_reset")
+    fun requestPasswordResetEmail(@Body requestPasswordResetBody: RequestPasswordResetBody): Call<Unit>
 }
 
