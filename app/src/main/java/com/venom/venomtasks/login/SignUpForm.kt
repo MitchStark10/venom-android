@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.User
+import com.venom.venomtasks.components.PasswordTextField
 import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.autofill
@@ -52,8 +53,6 @@ fun SignUpForm(
     var confirmUserPassword by remember { mutableStateOf("") }
     var isProcessingApiCall by remember { mutableStateOf(false) }
     var signUpFailureMessage by remember { mutableStateOf("") }
-
-    val autofill = LocalAutofill.current
 
     fun handleButtonClick() {
         if (userPassword != confirmUserPassword) {
@@ -119,22 +118,8 @@ fun SignUpForm(
             label = { Text("Email") },
             modifier = Modifier.autofill(listOf(AutofillType.EmailAddress), onFill = onUserEmailChange)
         )
-        OutlinedTextField(
-            value = userPassword,
-            onValueChange = { onUserPasswordChange(it) },
-            label = { Text("Password") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.autofill(listOf(AutofillType.Password, AutofillType.NewPassword), onFill = onUserPasswordChange)
-        )
-        OutlinedTextField(
-            value = confirmUserPassword,
-            onValueChange = { confirmUserPassword = it },
-            label = { Text("Confirm Password") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.autofill(listOf(AutofillType.Password, AutofillType.NewPassword), onFill = { confirmUserPassword = it })
-        )
+        PasswordTextField(value = userPassword, onValueChange = onUserPasswordChange)
+        PasswordTextField(value = confirmUserPassword, onValueChange = { confirmUserPassword = it }, label = "Confirm Password")
         Button(
             onClick = { handleButtonClick() },
             enabled = !isProcessingApiCall && userEmail.isNotEmpty() && userPassword.isNotEmpty()

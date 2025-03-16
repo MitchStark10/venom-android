@@ -79,4 +79,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.compose.material.dialogs.datetime)
     implementation(libs.sh.reorderable)
+    implementation(libs.androidx.material.icons.extended)
+
 }

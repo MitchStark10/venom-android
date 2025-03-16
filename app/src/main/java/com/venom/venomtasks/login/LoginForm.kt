@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,12 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.venom.venomtasks.classes.LogTag
 import com.venom.venomtasks.classes.LoginResponse
 import com.venom.venomtasks.classes.RequestPasswordResetBody
 import com.venom.venomtasks.classes.User
+import com.venom.venomtasks.components.PasswordTextField
 import com.venom.venomtasks.services.UserService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.autofill
@@ -53,6 +60,7 @@ fun LoginForm(
     var isProcessingApiCall by remember { mutableStateOf(false) }
     var loginFailureMessage by remember { mutableStateOf("") }
     var isResettingPassword by remember { mutableStateOf(false) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
     val toastContext = LocalContext.current
 
     val isLoginEnabled = userEmail.isNotEmpty() && userPassword.isNotEmpty()
@@ -146,14 +154,7 @@ fun LoginForm(
         )
 
         if (!isResettingPassword) {
-            OutlinedTextField(
-                value = userPassword,
-                onValueChange = { onUserPasswordChange(it) },
-                label = { Text("Password") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.autofill(listOf(AutofillType.Password), onFill = onUserPasswordChange)
-            )
+            PasswordTextField( value = userPassword, onValueChange = onUserPasswordChange )
         }
 
         Button(
