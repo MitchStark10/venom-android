@@ -53,7 +53,7 @@ fun CompletedView() {
     } else {
         PageWithGroupedTasks(
             tasks = ArrayList(tasks.toList()),
-            groupBy = GroupBy.LIST,
+            groupBy = GroupBy.DATE,
             showDeleteButton = tasks.size > 0
         )
     }
