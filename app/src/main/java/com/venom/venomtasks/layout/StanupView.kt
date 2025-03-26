@@ -97,6 +97,6 @@ fun StandupView() {
     if (isLoading) {
         CenteredLoader()
     } else {
-        PageWithGroupedTasks(tasks = ArrayList(tasks.toList()), groupBy = GroupBy.TYPE, showDeleteButton = false, showListNameInTask = true, enableReorder = false)
+        PageWithGroupedTasks(tasks = ArrayList(tasks.toList()), groupBy = GroupBy.TYPE, showDeleteButton = false, showListNameInTask = true)
     }
 }

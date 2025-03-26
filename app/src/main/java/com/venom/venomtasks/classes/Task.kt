@@ -22,7 +22,6 @@ data class CreateTaskRequestBody(
 
 data class TaskReorderItem(
     val id: Int,
-    val fieldToUpdate: String,
     val newOrder: Int,
     val newDueDate: String?
 )

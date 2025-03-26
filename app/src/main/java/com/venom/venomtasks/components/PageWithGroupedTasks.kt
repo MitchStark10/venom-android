@@ -1,6 +1,7 @@
 package com.venom.venomtasks.components
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.HapticFeedbackConstants
@@ -9,11 +10,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
@@ -57,7 +55,6 @@ fun PageWithGroupedTasks(
     groupBy: GroupBy,
     showDeleteButton: Boolean = false,
     showListNameInTask: Boolean = false,
-    enableReorder: Boolean = false
 ) {
     val view = LocalView.current
     val toastContext = LocalContext.current
@@ -100,7 +97,9 @@ fun PageWithGroupedTasks(
                     }
                 }
 
-                view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+                }
             }
         }
 
@@ -168,26 +167,31 @@ fun PageWithGroupedTasks(
                 ReorderableItem(
                     state = reorderableLazyListState,
                     key = listColumnItem.title ?: listColumnItem.task!!.id,
-                    enabled = enableReorder && listColumnItem.title.isNullOrEmpty()
+                    enabled = listColumnItem.title.isNullOrEmpty()
                 ) {
                     Row(
                         modifier = Modifier.longPressDraggableHandle(
                             onDragStarted = {
-                                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+                                view.performHapticFeedback(HapticFeedbackConstants.GESTURE_START)
                             },
                             onDragStopped = {
                                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
+                                var groupIndex = 0
+                                val tasksInListColumnItems = ArrayList<TaskReorderItem>()
 
-                                val tasksInListColumnItems =
-                                    listColumnItems.filter { it.task != null }
-                                        .mapIndexed { index, taskItem ->
-                                            TaskReorderItem(
-                                                id = taskItem.task!!.id,
-                                                fieldToUpdate = "listViewOrder",
-                                                newOrder = index,
-                                                newDueDate = taskItem.task.dueDate
-                                            )
-                                        }
+                                listColumnItems.forEach { listItem ->
+                                    if (listItem.task != null) {
+                                        tasksInListColumnItems.add(TaskReorderItem(
+                                            id = listItem.task.id,
+                                            newOrder = groupIndex,
+                                            newDueDate = listItem.task.dueDate
+                                        ))
+                                        groupIndex++
+                                    } else {
+                                        groupIndex = 0
+                                    }
+                                }
+
                                 val taskReorderBody = TaskReorderBody(tasksInListColumnItems)
 
                                 val taskService =
@@ -222,7 +226,7 @@ fun PageWithGroupedTasks(
                                         }
                                     })
                             },
-                            enabled = enableReorder && listColumnItem.title.isNullOrEmpty()
+                            enabled = listColumnItem.title.isNullOrEmpty()
                         )
                     ) {
                         if (!listColumnItem.title.isNullOrEmpty()) {
