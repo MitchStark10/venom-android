@@ -11,5 +11,5 @@ import com.venom.venomtasks.components.PageWithGroupedTasks
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ListView(list: List) {
-    PageWithGroupedTasks(tasks = list.tasks, groupBy = GroupBy.DATE)
+    PageWithGroupedTasks(tasks = list.tasks, groupBy = GroupBy.DATE, isListPage = true)
 }

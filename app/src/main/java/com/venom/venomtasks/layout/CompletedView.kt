@@ -54,7 +54,8 @@ fun CompletedView() {
         PageWithGroupedTasks(
             tasks = ArrayList(tasks.toList()),
             groupBy = GroupBy.DATE,
-            showDeleteButton = tasks.size > 0
+            showDeleteButton = tasks.size > 0,
+            showListNameInTask = true
         )
     }
 }

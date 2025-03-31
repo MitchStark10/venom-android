@@ -5,6 +5,7 @@ data class Task(
     var taskName: String,
     var dueDate: String?,
     var listViewOrder: Int?,
+    var combinedViewOrder: Int?,
     var isCompleted: Boolean,
     val list: List?,
     var listId: Int?,
@@ -23,7 +24,8 @@ data class CreateTaskRequestBody(
 data class TaskReorderItem(
     val id: Int,
     val newOrder: Int,
-    val newDueDate: String?
+    val newDueDate: String?,
+    val fieldToUpdate: String
 )
 
 data class TaskReorderBody(

@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,7 @@ fun PageWithGroupedTasks(
     groupBy: GroupBy,
     showDeleteButton: Boolean = false,
     showListNameInTask: Boolean = false,
+    isListPage: Boolean = false
 ) {
     val view = LocalView.current
     val toastContext = LocalContext.current
@@ -66,6 +68,7 @@ fun PageWithGroupedTasks(
     val listColumnItems = remember {
         mutableStateListOf<ListColumnItem>()
     }
+
     val reorderableLazyListState =
         rememberReorderableLazyListState(
             lazyListState = lazyListState
@@ -90,7 +93,12 @@ fun PageWithGroupedTasks(
 
                 val itemToUpdate = get(to.index)
                 if (itemToUpdate.task != null) {
-                    itemToUpdate.task.listViewOrder = to.index
+
+                    if (groupBy == GroupBy.LIST) {
+                        itemToUpdate.task.listViewOrder = to.index
+                    } else {
+                        itemToUpdate.task.combinedViewOrder = to.index
+                    }
 
                     if (neighboringTask?.task != null) {
                         itemToUpdate.task.dueDate = neighboringTask.task!!.dueDate
@@ -100,6 +108,7 @@ fun PageWithGroupedTasks(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                     view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
                 }
+
             }
         }
 
@@ -148,7 +157,7 @@ fun PageWithGroupedTasks(
 
             listColumnItems.add(ListColumnItem(title = groupText))
 
-            for (task in group.value) {
+            for (task in group.value.sortedBy { if (groupBy == GroupBy.DATE) it.listViewOrder else it.combinedViewOrder }) {
                 listColumnItems.add(ListColumnItem(task = task))
             }
         }
@@ -184,7 +193,8 @@ fun PageWithGroupedTasks(
                                         tasksInListColumnItems.add(TaskReorderItem(
                                             id = listItem.task.id,
                                             newOrder = groupIndex,
-                                            newDueDate = listItem.task.dueDate
+                                            newDueDate = listItem.task.dueDate,
+                                            fieldToUpdate = if (groupBy == GroupBy.DATE) "listViewOrder" else "combinedViewOrder"
                                         ))
                                         groupIndex++
                                     } else {
