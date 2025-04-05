@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
@@ -168,7 +167,7 @@ fun PageWithGroupedTasks(
             Spacer(modifier = Modifier.size(10.dp))
             Text(text = "No tasks found.")
         }
-        LazyColumn(state = lazyListState) {
+        LazyColumn(state = lazyListState, modifier = Modifier.weight(1F)) {
             itemsIndexed(listColumnItems, key = { _, item ->  item.title ?: item.task!!.id }) { index, listColumnItem ->
                 if (index == 0) {
                     Spacer(modifier = Modifier.size(10.dp))
