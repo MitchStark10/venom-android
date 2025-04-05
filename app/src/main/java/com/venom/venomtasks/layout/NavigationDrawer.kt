@@ -194,7 +194,7 @@ fun NavigationDrawer(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(modifier = Modifier.offset(x = (-1).dp)) {
+            ModalDrawerSheet(modifier = Modifier.offset(x = (-5).dp)) {
                 NavigationDrawerItem(
                     label = {
                         NavigationDrawerRow(text = "Today", icon = Icons.Filled.DateRange)
