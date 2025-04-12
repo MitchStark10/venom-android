@@ -67,6 +67,7 @@ import com.venom.venomtasks.services.ListService
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TagService
 import com.venom.venomtasks.services.UserService
+import com.venom.venomtasks.utils.getDateStringFromMillis
 import com.venom.venomtasks.utils.getTitleText
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -74,6 +75,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import java.util.Date
+import java.util.TimeZone
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -118,7 +121,13 @@ fun NavigationDrawer(
     LaunchedEffect(RefreshCounter.refreshListCount) {
         val listService: ListService =
             RetrofitBuilder.getRetrofit().create(ListService::class.java)
-        listService.getLists().enqueue(object : Callback<ArrayList<List>> {
+        listService.getLists(
+            getDateStringFromMillis(
+                Date().time,
+                "yyyy-MM-dd",
+                TimeZone.getDefault().id
+            )
+        ).enqueue(object : Callback<ArrayList<List>> {
             override fun onFailure(call: Call<ArrayList<List>>, t: Throwable) {
                 Log.e(LogTag.NAVIGATION_DRAWER, "Received error when attempting to retrieve lists: $t")
                 isLoading = false
