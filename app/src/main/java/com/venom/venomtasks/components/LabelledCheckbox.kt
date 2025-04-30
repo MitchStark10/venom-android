@@ -33,9 +33,12 @@ import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.Task
 import com.venom.venomtasks.services.RetrofitBuilder
 import com.venom.venomtasks.services.TaskService
+import com.venom.venomtasks.utils.getDateStringFromMillis
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Date
+import java.util.TimeZone
 
 @Composable
 fun TaskCheckbox(
@@ -51,6 +54,12 @@ fun TaskCheckbox(
     fun handleTaskCompletion(updatedIsCompleted: Boolean) {
         isCompleted = updatedIsCompleted
         task.isCompleted = updatedIsCompleted
+        task.dateCompleted =
+            getDateStringFromMillis(
+                Date().time,
+                "yyyy-MM-dd",
+                TimeZone.getDefault().id
+            )
         val taskApi =
             RetrofitBuilder.getRetrofit().create(TaskService::class.java)
         taskApi.updateTask(task.id, task)

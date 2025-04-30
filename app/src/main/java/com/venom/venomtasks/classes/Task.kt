@@ -4,6 +4,7 @@ data class Task(
     val id: Int,
     var taskName: String,
     var dueDate: String?,
+    var dateCompleted: String?,
     var listViewOrder: Int?,
     var combinedViewOrder: Int?,
     var isCompleted: Boolean,
