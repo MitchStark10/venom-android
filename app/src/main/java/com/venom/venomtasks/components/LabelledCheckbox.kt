@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,10 +100,22 @@ fun TaskCheckbox(
             .wrapContentWidth()
             .wrapContentSize(),
     ) {
-        Checkbox(
-            checked = isCompleted,
-            onCheckedChange = { handleTaskCompletion(it) }
-        )
+        if (task.recurringSchedule != null && !isCompleted) {
+            IconButton(onClick = {
+                handleTaskCompletion(true)
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Mark task as completed"
+                )
+            }
+        } else {
+            Checkbox(
+                checked = isCompleted,
+                onCheckedChange = { handleTaskCompletion(it) },
+            )
+        }
+
 
         Spacer(Modifier.size(6.dp))
 

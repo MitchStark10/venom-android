@@ -50,6 +50,7 @@ import com.venom.venomtasks.classes.CreateTaskRequestBody
 import com.venom.venomtasks.classes.Modal
 import com.venom.venomtasks.classes.RefreshCounter
 import com.venom.venomtasks.classes.GlobalState
+import com.venom.venomtasks.classes.RecurringSchedule
 import com.venom.venomtasks.components.CustomDatePicker
 import com.venom.venomtasks.components.CustomDropdown
 import com.venom.venomtasks.components.DropdownOption
@@ -81,6 +82,9 @@ fun TaskModal() {
         initialTaskDate = null;
     }
 
+    var cadence by remember {
+        mutableStateOf(GlobalState.selectedTask?.recurringSchedule?.cadence ?: "NONE")
+    }
 
     var taskName by remember {
         mutableStateOf(initialTaskName)
@@ -150,6 +154,7 @@ fun TaskModal() {
             taskToUpdate.dueDate = formattedDateTime
             taskToUpdate.tagIds = ArrayList(tags)
             taskToUpdate.listId = listId
+            taskToUpdate.recurringSchedule = RecurringSchedule(cadence)
             taskService.updateTask(taskToUpdate.id, taskToUpdate)
                 .enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -161,8 +166,9 @@ fun TaskModal() {
                     }
                 })
         } else {
+            val recurringSchedule = RecurringSchedule(cadence)
             val taskRequestBody =
-                CreateTaskRequestBody(taskName, formattedDateTime, listId, ArrayList(tags))
+                CreateTaskRequestBody(taskName, formattedDateTime, listId, ArrayList(tags), recurringSchedule)
             taskService.createTask(taskRequestBody).enqueue(object : Callback<Unit> {
                 override fun onFailure(call: Call<Unit>, t: Throwable) {
                     handleApiFailure()
@@ -222,6 +228,19 @@ fun TaskModal() {
                     )
 
                     CustomDatePicker(datePickerState = datePickerState)
+
+                    CustomDropdown(
+                        label = "Recurrence",
+                        value = arrayListOf(cadence),
+                        dropdownOptions = arrayListOf(
+                            DropdownOption("NONE", "None"),
+                            DropdownOption("DAILY", "Daily"),
+                            DropdownOption("WEEKLY", "Weekly"),
+                            DropdownOption("MONTHLY", "Monthly"),
+                            DropdownOption("YEARLY", "Yearly")
+                        ),
+                        onChange = { cadence = it.id as String }
+                    )
 
                     if (GlobalState.tags.size > 0) {
                         CustomDropdown(

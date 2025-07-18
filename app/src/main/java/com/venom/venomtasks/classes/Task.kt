@@ -12,14 +12,20 @@ data class Task(
     var listId: Int?,
     val taskTag: ArrayList<TaskTag>,
     var tagIds: ArrayList<Int>,
-    var type: String?
+    var type: String?,
+    var recurringSchedule: RecurringSchedule?
+)
+
+data class RecurringSchedule(
+    var cadence: String
 )
 
 data class CreateTaskRequestBody(
     val taskName: String,
     val dueDate: String?,
     val listId: Int,
-    val tagIds: ArrayList<Int>
+    val tagIds: ArrayList<Int>,
+    val recurringSchedule: RecurringSchedule? = null
 )
 
 data class TaskReorderItem(

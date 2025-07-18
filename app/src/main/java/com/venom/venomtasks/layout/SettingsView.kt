@@ -188,7 +188,7 @@ fun SettingsView() {
                 updateSettings(autoDeleteTasksValue, isUsingWorkSchedule)
             })
 
-            Text("Use work week calendar for daily report")
+            Text("Factor weekends into calculations for daily report and daily recurring tasks (for work lists only).")
         }
 
         Divider()
