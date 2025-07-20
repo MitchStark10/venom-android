@@ -154,7 +154,7 @@ fun TaskModal() {
             taskToUpdate.dueDate = formattedDateTime
             taskToUpdate.tagIds = ArrayList(tags)
             taskToUpdate.listId = listId
-            taskToUpdate.recurringSchedule = RecurringSchedule(cadence)
+            taskToUpdate.recurringSchedule =  if (cadence != "NONE") RecurringSchedule(cadence) else null
             taskService.updateTask(taskToUpdate.id, taskToUpdate)
                 .enqueue(object : Callback<Unit> {
                     override fun onFailure(call: Call<Unit>, t: Throwable) {
@@ -166,7 +166,7 @@ fun TaskModal() {
                     }
                 })
         } else {
-            val recurringSchedule = RecurringSchedule(cadence)
+            val recurringSchedule = if (cadence != "None") RecurringSchedule(cadence) else null
             val taskRequestBody =
                 CreateTaskRequestBody(taskName, formattedDateTime, listId, ArrayList(tags), recurringSchedule)
             taskService.createTask(taskRequestBody).enqueue(object : Callback<Unit> {
